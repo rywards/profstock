@@ -1,0 +1,15 @@
+h1 {
+    color: green;
+  }
+
+.navbar {
+  list-style-type: none;
+}
+
+/*.text-fields {
+    margin: auto;
+    text-align: center;
+    width: 50%;
+    border: 3px solid green;
+    padding: 10px;
+  }*/
