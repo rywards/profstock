@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Home</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Style the header */
+header {
+  background-color: #666;
+  padding: 5px;
+  text-align: center;
+  font-size: 35px;
+  color: white;
+}
+
+table.home1, th, td {
+  border: 1px solid;
+}
+
+table.home1 {
+  width: 80%;
+}
+
+
+
+table.home2 {
+  width: 50%;
+}
+
+/* Style the footer */
+footer {
+  background-color: #777;
+  padding: 10px;
+  text-align: center;
+  color: white;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <h2>ProfStock</h2>
+</header>
+
+<h1>
+  <ul>
+    <li><a class="active" href="home">Home</a></li>
+    <li><a href="portfolio">Portfolio</a></li>
+    <li><a href="watchlist">Watchlist</a></li>
+    <li style="float:right"><a href="SignUpPage">Login</a></li>
+    <li style="float:right"><input type="text" id="password" name="password" placeholder="search"></li>
+  </ul>
+</h1>
+
+<h2>
+  <table class = "home1" align="center">
+    <tr>
+      <th>Top 10 Stocks by Market Cap</th>
+      <th>Top users</th>
+    </tr>
+    <tr>
+      <td>
+        <table class = "home2" align="center">
+          <tr>
+            <th>Name</th>
+            <th>$</th>
+            <th>#</th>
+          </tr>
+        </table>
+      </td>
+      <td>
+        <table class = "home2" align="center">
+          <tr>
+            <th>Username</th>
+            <th>Return #%</th>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</h2>
+
+
+
+<footer>
+  <p></p>
+</footer>
+
+</body>
+</html>
