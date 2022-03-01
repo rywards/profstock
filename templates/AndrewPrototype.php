@@ -10,13 +10,12 @@
 <?php
 // https://www.w3schools.com/php/php_mysql_insert.asp
 // This is where I learned how to connect and insert into a mysql table
-$servername = "localhost";
+$servername = "localhost:3306";
 $username = "root";
 $password = "root";
-$dbname = "profstock";
 
 // Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = mysqli_connect($servername, $username, $password);
 
 // Check connection
 if ($conn->connect_error) {
@@ -48,7 +47,7 @@ function sendToDatabase() {
   <?php
     // Get info from database
     $sql = "SELECT firstname, lastname ";
-    $sql .= "FROM users;";
+    $sql .= "FROM profstock.users;";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
@@ -65,7 +64,7 @@ function sendToDatabase() {
     if ($conn->query($sql) === TRUE) {
       // Insert was successful, display data again to show it went through
       $sql = "SELECT firstname, lastname ";
-      $sql .= "FROM users;";
+      $sql .= "FROM profstock.users;";
       $stmt = $conn->prepare($sql);
       $stmt->execute();
 
