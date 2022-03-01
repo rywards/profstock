@@ -12,7 +12,7 @@
 // This is where I learned how to connect and insert into a mysql table
 $servername = "localhost";
 $username = "root";
-$password = "wwcVs5kt";
+$password = "root";
 $dbname = "profstock";
 
 // Create connection
