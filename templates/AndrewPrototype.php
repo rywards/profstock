@@ -54,7 +54,7 @@ function sendToDatabase() {
 
     // Display the data received from database
     foreach($stmt->fetchAll() as $row) {
-      echo '$row[firstname] . $row[lastname]\n';
+      echo "$row[firstname]" . " " . "$row[lastname]\n";
     }
 
     // Insert statement
@@ -71,7 +71,7 @@ function sendToDatabase() {
 
       // Display the data received from database
       foreach($stmt->fetchAll() as $row) {
-        echo '$row[firstname] . $row[lastname]\n';
+        echo "$row[firstname]" . " " . "$row[lastname]\n";
       }
     } else {
       // Insert did not go through
