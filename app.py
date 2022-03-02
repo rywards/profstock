@@ -5,7 +5,7 @@ app = Flask(__name__)
 # route decorators
 @app.route("/")
 def home():
-    return render_template("Home.html")
+    return render_template("AndrewPrototype.php")
 
 @app.route("/")
 def signup():
