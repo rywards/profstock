@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+import subprocess as sp
 
 app = Flask(__name__)
 
@@ -6,6 +7,11 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return render_template("AndrewPrototype.php")
+
+@app.route("/")
+def portfolio():
+    out = sp.run(["php","portfolio.php"], stdout=sp.PIPE)
+    return out.stdout
 
 @app.route("/")
 def signup():
