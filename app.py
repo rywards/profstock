@@ -76,6 +76,31 @@ def pullstockinfo():
                             volume=volume,
                             date=date)
 
+# Andrew (prototype)
+@app.route("/pullFromSQL", methods=['GET'])
+def getFromDB():
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("select * from users;")
+        data = cursor.fetchall()
+
+        return str(data)
+
+# Andrew (prototype)
+@app.route("/postToSQL", methods=['POST'])
+def writeToDB():
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""INSERT INTO 
+        users (
+            firstname,
+            lastname)
+            VALUES (%s,%s)""", (firstname, lastname))
+
+        cursor.commit()
+
 if __name__ == '__main__':
     app.run(debug=True)
 
