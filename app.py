@@ -99,7 +99,28 @@ def writeToDB():
             lastname)
             VALUES (%s,%s)""", (firstname, lastname))
 
-        cursor.commit()
+        cursor.commit() # not sure that cursor is the variable to call commit() method
+
+# This is the actual endpoint that will add a new user's info to the db
+# Still need to implement a way to check to make sure user email is not already
+# in use, etc.
+# Password is also just being stored as plain text right now, which is also probably
+# not good
+@app.route("/addNewUser", methods=['POST'])
+def addToDB():
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""INSERT INTO 
+        users (
+            username,
+            email,
+            firstname,
+            lastname,
+            pw)
+            VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
+
+        cursor.commit() # not sure that cursor is the variable to call commit() method
 
 if __name__ == '__main__':
     app.run(debug=True)
