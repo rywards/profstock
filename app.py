@@ -1,15 +1,18 @@
 from flask import Flask, render_template
-from flask_mysqldb import MySQL
+from flaskext.mysql import MySQL
 import subprocess as sp
 
 app = Flask(__name__)
 
+mysql = MYSQL()
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'profstock'
+mysql.init_app(app)
 
-mysql = MYSQL(app)
+
+
 
 # route decorators
 @app.route("/")
