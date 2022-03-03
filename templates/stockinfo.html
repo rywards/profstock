@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+    Ryan Edwards
+-->
+<html>
+<head>
+    <Title> {{ ticker }} </Title>
+</head>
+<body>
+    <form action="/stockinfo.html" method="post">
+        <input type="text" name="ticker">
+        <input type="submit" value="Enter ticker">
+
+    <!-- 
+        items in double braces are coming from the POST requests in stocksearch.html;
+        variables must match what's in the stockinfo app route
+    -->
+    <div class="tickerinfo">
+        <p> Ticker symbol: {{ ticker }} </p>
+        <p> Date of Information: {{ date }} </p>
+        <p> Close Value: {{ close }} </p>
+        <p> Open Price: {{ openprice }} </p>
+        <P> Day High: {{ high }} </P>
+        <p> Day Low: {{ low }} </p>
+        <p> Daily Volume: {{ volume }} </p>
+
+    </div>
+    
+
+</body>
+</html>
