@@ -1,22 +1,70 @@
 <!DOCTYPE html>
+
+<!--
+  Ben Adelson
+-->
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <title>Index</title>
+<title>Home</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-  <h1>ProfStock</h1>
-  <ul class="navbar">
-    <li>Portfolio</li>
-    <li>
-      <input type="text" id="password" name="password" placeholder="search">
+
+<header>
+  <h2>ProfStock</h2>
+</header>
+
+<h1>
+  <ul>
+    <li><a class="active" href="home">Home</a></li>
+    <li><a href="portfolio">Portfolio</a></li>
+    <li><a href="watchlist">Watchlist</a></li>
+    <li style="float:right"><a href="SignUpPage">Login</a></li>
+    <li style="float:right">
+      <!-- send post request with stock ticker-->
+      <form action="/stockinfo.html" method="post">
+      <input type="text" name="ticker" placeholder="Enter ticker">
+      <input type="submit" value="Search">
+      </form>
     </li>
   </ul>
-</body>
+</h1>
 
+<h2>
+  <table class = "home1" align="center">
+    <tr>
+      <th>Top 10 Stocks by Market Cap</th>
+      <th>Top users</th>
+    </tr>
+    <tr>
+      <td>
+        <table class = "home2" align="center">
+          <tr>
+            <th>Name</th>
+            <th>$</th>
+            <th>#</th>
+          </tr>
+        </table>
+      </td>
+      <td>
+        <table class = "home2" align="center">
+          <tr>
+            <th>Username</th>
+            <th>Return #%</th>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</h2>
+
+
+
+<footer>
+  <p></p>
+</footer>
+
+</body>
 </html>
