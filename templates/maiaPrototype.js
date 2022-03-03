@@ -8,7 +8,7 @@ const ListItem = props => {
 class List extends React.Component {
     constructor() {
         super();
-        this.state = {items: ['IBM', 'Netflix']};
+        this.state = {items: ['Apple', 'Netflix']};
     }
 
     addItemHandler() {
