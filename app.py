@@ -24,8 +24,22 @@ mysql.init_app(app)
 # these determine the location of different endpoints
 @app.route("/")
 def home():
-    return render_template("Home.html")
+    return render_template("index.html")
 
+@app.route("/testdbcon")
+def testdb():
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    # fetchall gets all the results of query
+    # fetchone gets one result from the query
+    cursor.execute("select * from stocks where stockid = 4;")
+    data = cursor.fetchone()
+    return str(data)
+
+@app.route("/SignUpPage.html")
+def signup():
+    return render_template("SignUpPage.html")
 
 @app.route("/stocksearch.html")
 def stockinfo():
@@ -36,7 +50,7 @@ def stockinfo():
 # we can do some calculations here as necessary
 @app.route("/stockinfo.html", methods=['POST'])
 def pullstockinfo():
-    ticker = request.form['ticker']
+    ticker = 'MSFT'
 
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
