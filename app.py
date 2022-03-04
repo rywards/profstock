@@ -6,14 +6,12 @@ from flask_mysqldb import MySQL
 import subprocess as sp
 
 app = Flask(__name__)
-
-
 mysql = MySQL()
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'profstock'
-mysql.init_app(app)
 
 
 
@@ -26,16 +24,31 @@ mysql.init_app(app)
 def home():
     return render_template("index.html")
 
-@app.route("/testdbcon")
-def testdb():
+@app.route("/addstock", methods=['GET','POST'])
+def addstock():
+
+    # database connection has to be done in a view
+    # basically in any of the app.route decorator functions
     conn = mysql.connection
     cursor = conn.cursor()
+    ticker = request.form['ticker']
 
     # fetchall gets all the results of query
     # fetchone gets one result from the query
-    cursor.execute("select * from stocks where stockid = 4;")
-    data = cursor.fetchone()
-    return str(data)
+    if request.method == 'GET':
+        cursor.execute("select * from stocks where stockid = 4;")
+        data = cursor.fetchone()
+        return str(data)
+
+    if request.method =='POST':
+        cursor.execute("""INSERT INTO stocks
+            (ticker,
+            name)
+            VALUES (%s, 'Home Depot')""", [ticker])
+        cursor.execute("select * from stocks;")
+        data = cursor.fetchall()
+        conn.commit()
+        return str(data)
 
 @app.route("/SignUpPage.html")
 def signup():
@@ -65,10 +78,11 @@ def pullstockinfo():
     low = api_response['low']
     volume = api_response['volume']
     date = api_response['date']
+    symbol = api_response['symbol']
 
 
     return render_template("stockinfo.html", 
-                            ticker=ticker,  
+                            symbol=symbol,  
                             close=close,
                             openprice=openprice,
                             high=high,
@@ -77,12 +91,13 @@ def pullstockinfo():
                             date=date)
 
 # Andrew (prototype)
-@app.route("/pullFromSQL", methods=['GET'])
+# Simply gets all names from users table of the database
+@app.route("/pullFromSQL", methods=['POST'])
 def getFromDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
 
-        cursor.execute("select * from users;")
+        cursor.execute("select firstname, lastname from users;")
         data = cursor.fetchall()
 
         return str(data)
@@ -90,8 +105,11 @@ def getFromDB():
 # Andrew (prototype)
 @app.route("/postToSQL", methods=['POST'])
 def writeToDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
+
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
 
         cursor.execute("""INSERT INTO 
         users (
@@ -99,7 +117,10 @@ def writeToDB():
             lastname)
             VALUES (%s,%s)""", (firstname, lastname))
 
-        cursor.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("AndrewPrototype.html")
+
 
 # This is the actual endpoint that will add a new user's info to the db
 # Still need to implement a way to check to make sure user email is not already
@@ -108,19 +129,28 @@ def writeToDB():
 # not good
 @app.route("/addNewUser", methods=['POST'])
 def addToDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
+
+        username = request.form['username']
+        email = request.form['email']
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        pw = request.form['pw']
 
         cursor.execute("""INSERT INTO 
         users (
             username,
             email,
             firstname,
-            lastname,
-            pw)
+            lastname, 
+            pw) 
             VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
 
-        cursor.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("SignUpPage.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
