@@ -1,9 +1,3 @@
-#Portfolio tracker
+# ProfStock
 
-testing
-testing
-
-
-testing?
-
-Test push from server by Ryan.
+Web app to track our stock portfolio and compare it's performance against other users.
