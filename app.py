@@ -79,9 +79,9 @@ def pullstockinfo():
 
 # Andrew (prototype)
 # Simply gets all names from users table of the database
-@app.route("/pullFromSQL")
+@app.route("/pullFromSQL", methods=['POST'])
 def getFromDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
 
         cursor.execute("select firstname, lastname from users;")
@@ -90,9 +90,9 @@ def getFromDB():
         return str(data)
 
 # Andrew (prototype)
-@app.route("/postToSQL")
+@app.route("/postToSQL", methods=['POST'])
 def writeToDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
 
         firstname = request.form['firstname']
@@ -104,7 +104,9 @@ def writeToDB():
             lastname)
             VALUES (%s,%s)""", (firstname, lastname))
 
-        db.session.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("AndrewPrototype.html")
 
 
 # This is the actual endpoint that will add a new user's info to the db
@@ -112,9 +114,9 @@ def writeToDB():
 # in use, etc.
 # Password is also just being stored as plain text right now, which is also probably
 # not good
-@app.route("/addNewUser")
+@app.route("/addNewUser", methods=['POST'])
 def addToDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
 
         username = request.form['username']
@@ -128,11 +130,14 @@ def addToDB():
             username,
             email,
             firstname,
-            lastname,
-            pw)
+            lastname, 
+            pw) 
             VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
 
-        db.session.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("SignUpPage.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
