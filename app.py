@@ -6,14 +6,12 @@ from flask_mysqldb import MySQL
 import subprocess as sp
 
 app = Flask(__name__)
-
-
 mysql = MySQL()
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'profstock'
-mysql.init_app(app)
 
 
 
@@ -89,10 +87,13 @@ def getFromDB():
         return str(data)
 
 # Andrew (prototype)
-@app.route("/postToSQL/<firstname>/<lastname>")
-def writeToDB(firstname, lastname):
+@app.route("/postToSQL")
+def writeToDB():
         conn = mysql.connect()
         cursor = conn.cursor()
+
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
 
         cursor.execute("""INSERT INTO 
         users (
@@ -108,10 +109,16 @@ def writeToDB(firstname, lastname):
 # in use, etc.
 # Password is also just being stored as plain text right now, which is also probably
 # not good
-@app.route("/addNewUser/<username>/<email>/<firstname>/<lastname>/<pw>")
-def addToDB(username, email, firstname, lastname, pw):
+@app.route("/addNewUser")
+def addToDB():
         conn = mysql.connect()
         cursor = conn.cursor()
+
+        username = request.form['username']
+        email = request.form['email']
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        pw = request.form['pw']
 
         cursor.execute("""INSERT INTO 
         users (

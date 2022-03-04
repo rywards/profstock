@@ -11,27 +11,12 @@
 <h1>Entering and Retreiving from Database</h1>
 <br />
 
-<div class="text-fields">
-<label for="firstName">First name:</label>
-<input type="text" id="firstName" name="firstName">
-<br />
+<form action="/postToSQL" method="post">
+    <input type="text" name="firstname">
+    <input type="text" name="lastname">
+    <input type="submit" value="submit">
 
-<label for="lastName">Last name:</label>
-<input type="text" id="lastName" name="lastName">
-<br />
-
-<button onclick="sendToDatabase()">Submit</button>
-</div>
-
-<script>
-function sendToDatabase() {
-    firstName = document.getElementById("firstName").value;
-    lastName = document.getElementById("lastName").value;
-
-    
-}
-
-</script>
+</form>
 
 </body>
 </html>
