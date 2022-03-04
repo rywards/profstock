@@ -23,19 +23,31 @@ mysql.init_app(app)
 def home():
     return render_template("index.html")
 
-@app.route("/testdbcon")
-def testdb():
+@app.route("/addstock", methods=['GET','POST'])
+def addstock():
 
     # database connection has to be done in a view
     # basically in any of the app.route decorator functions
     conn = mysql.connection
     cursor = conn.cursor()
+    ticker = request.form['ticker']
 
     # fetchall gets all the results of query
     # fetchone gets one result from the query
-    cursor.execute("select * from stocks where stockid = 4;")
-    data = cursor.fetchone()
-    return str(data)
+    if request.method == 'GET':
+        cursor.execute("select * from stocks where stockid = 4;")
+        data = cursor.fetchone()
+        return str(data)
+
+    if request.method =='POST':
+        cursor.execute("""INSERT INTO stocks
+            (ticker,
+            name)
+            VALUES (%s, 'Home Depot')""", [ticker])
+        cursor.execute("select * from stocks;")
+        data = cursor.fetchall()
+        conn.commit()
+        return str(data)
 
 @app.route("/SignUpPage.html")
 def signup():
@@ -65,10 +77,11 @@ def pullstockinfo():
     low = api_response['low']
     volume = api_response['volume']
     date = api_response['date']
+    symbol = api_response['symbol']
 
 
     return render_template("stockinfo.html", 
-                            ticker=ticker,  
+                            symbol=symbol,  
                             close=close,
                             openprice=openprice,
                             high=high,

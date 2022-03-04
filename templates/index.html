@@ -18,7 +18,8 @@
 
 <h1>
   <ul>
-    <li><a class="active" href="home">Home</a></li>
+    <!-- you have to call the function inside of the route to create the link-->
+    <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
     <li><a href="portfolio">Portfolio</a></li>
     <li><a href="watchlist">Watchlist</a></li>
     <li style="float:right"><a href="SignUpPage">Login</a></li>
