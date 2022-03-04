@@ -79,6 +79,54 @@ def pullstockinfo():
                             volume=volume,
                             date=date)
 
+# Andrew (prototype)
+# Simply gets all names from users table of the database
+@app.route("/pullFromSQL")
+def getFromDB():
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("select firstname, lastname from users;")
+        data = cursor.fetchall()
+
+        return str(data)
+
+# Andrew (prototype)
+@app.route("/postToSQL/<firstname>/<lastname>")
+def writeToDB(firstname, lastname):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""INSERT INTO 
+        users (
+            firstname,
+            lastname)
+            VALUES (%s,%s)""", (firstname, lastname))
+
+        db.session.commit() # not sure that cursor is the variable to call commit() method
+
+
+# This is the actual endpoint that will add a new user's info to the db
+# Still need to implement a way to check to make sure user email is not already
+# in use, etc.
+# Password is also just being stored as plain text right now, which is also probably
+# not good
+@app.route("/addNewUser/<username>/<email>/<firstname>/<lastname>/<pw>")
+def addToDB(username, email, firstname, lastname, pw):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""INSERT INTO 
+        users (
+            username,
+            email,
+            firstname,
+            lastname,
+            pw)
+            VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
+
+        db.session.commit() # not sure that cursor is the variable to call commit() method
+
 if __name__ == '__main__':
     app.run(debug=True)
 
