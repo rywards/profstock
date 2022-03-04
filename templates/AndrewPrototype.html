@@ -9,29 +9,60 @@
 
 
 <h1>Entering and Retreiving from Database</h1>
+<h2>Andrew Individual Prototype</h2>
 <br />
 
-<div class="text-fields">
-<label for="firstName">First name:</label>
-<input type="text" id="firstName" name="firstName">
-<br />
+<form action="/postToSQL" method="post">
+    <label for="firstname">First name:</label><br>
+    <input type="text" name="firstname"><br>
+    <label for="lastname">Last name:</label><br>
+    <input type="text" name="lastname"><br><br>
+    <input type="submit" value="Submit">
 
-<label for="lastName">Last name:</label>
-<input type="text" id="lastName" name="lastName">
-<br />
+</form>
 
-<button onclick="sendToDatabase()">Submit</button>
-</div>
+<form action="/pullFromSQL" method="post">
+    <input type="submit" value="Show all users">
 
-<script>
-function sendToDatabase() {
-    firstName = document.getElementById("firstName").value;
-    lastName = document.getElementById("lastName").value;
-
-    
-}
-
-</script>
+</form>
 
 </body>
 </html>
+
+
+<!---
+These are the endpoints that the prototype uses
+
+# Andrew (prototype)
+# Simply gets all names from users table of the database
+@app.route("/pullFromSQL", methods=['POST'])
+def getFromDB():
+        conn = mysql.connection
+        cursor = conn.cursor()
+
+        cursor.execute("select firstname, lastname from users;")
+        data = cursor.fetchall()
+
+        #return str(data)
+        return render_template("AndrewPrototype.html")
+
+# Andrew (prototype)
+@app.route("/postToSQL", methods=['POST'])
+def writeToDB():
+        conn = mysql.connection
+        cursor = conn.cursor()
+
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+
+        cursor.execute("""INSERT INTO 
+        users (
+            firstname,
+            lastname)
+            VALUES (%s,%s)""", (firstname, lastname))
+
+        conn.commit() 
+
+        return render_template("AndrewPrototype.html")
+
+-->

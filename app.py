@@ -6,13 +6,14 @@ from flask_mysqldb import MySQL
 import subprocess as sp
 
 app = Flask(__name__)
-
-
 mysql = MySQL()
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'profstock'
+
+
 
 mysql.init_app(app)
 
@@ -91,9 +92,9 @@ def pullstockinfo():
 
 # Andrew (prototype)
 # Simply gets all names from users table of the database
-@app.route("/pullFromSQL")
+@app.route("/pullFromSQL", methods=['POST'])
 def getFromDB():
-        conn = mysql.connect()
+        conn = mysql.connection
         cursor = conn.cursor()
 
         cursor.execute("select firstname, lastname from users;")
@@ -102,10 +103,13 @@ def getFromDB():
         return str(data)
 
 # Andrew (prototype)
-@app.route("/postToSQL/<firstname>/<lastname>")
-def writeToDB(firstname, lastname):
-        conn = mysql.connect()
+@app.route("/postToSQL", methods=['POST'])
+def writeToDB():
+        conn = mysql.connection
         cursor = conn.cursor()
+
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
 
         cursor.execute("""INSERT INTO 
         users (
@@ -113,7 +117,9 @@ def writeToDB(firstname, lastname):
             lastname)
             VALUES (%s,%s)""", (firstname, lastname))
 
-        db.session.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("AndrewPrototype.html")
 
 
 # This is the actual endpoint that will add a new user's info to the db
@@ -121,21 +127,30 @@ def writeToDB(firstname, lastname):
 # in use, etc.
 # Password is also just being stored as plain text right now, which is also probably
 # not good
-@app.route("/addNewUser/<username>/<email>/<firstname>/<lastname>/<pw>")
-def addToDB(username, email, firstname, lastname, pw):
-        conn = mysql.connect()
+@app.route("/addNewUser", methods=['POST'])
+def addToDB():
+        conn = mysql.connection
         cursor = conn.cursor()
+
+        username = request.form['username']
+        email = request.form['email']
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        pw = request.form['pw']
 
         cursor.execute("""INSERT INTO 
         users (
             username,
             email,
             firstname,
-            lastname,
-            pw)
+            lastname, 
+            pw) 
             VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
 
-        db.session.commit() # not sure that cursor is the variable to call commit() method
+        conn.commit() 
+
+        return render_template("SignUpPage.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
