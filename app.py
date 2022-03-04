@@ -26,6 +26,9 @@ def home():
 
 @app.route("/testdbcon")
 def testdb():
+
+    # database connection has to be done in a view
+    # basically in any of the app.route decorator functions
     conn = mysql.connection
     cursor = conn.cursor()
 
