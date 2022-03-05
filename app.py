@@ -24,6 +24,7 @@ mysql.init_app(app)
 def home():
     return render_template("index.html")
 
+# split this method up into GET and POST requests
 @app.route("/addstock", methods=['GET','POST'])
 def addstock():
 
