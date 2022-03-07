@@ -5,63 +5,84 @@
 -->
 <html lang="en">
 <head>
-<title>Home</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <title>Home</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
 <header>
-  <h2>ProfStock</h2>
+  <h1>ProfStock</h2>
 </header>
+<div id="root"></div>
+<div id="subInfo"></div>
 
-<h1>
-  <ul>
-    <!-- you have to call the function inside of the route to create the link-->
-    <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
-    <li><a href="portfolio">Portfolio</a></li>
-    <li><a href="watchlist">Watchlist</a></li>
-    <li style="float:right"><a href="SignUpPage">Login</a></li>
-    <li style="float:right">
-      <!-- send post request with stock ticker-->
-      <form action="/stockinfo.html" method="post">
-      <input type="text" name="ticker" placeholder="Enter ticker">
-      <input type="submit" value="Search">
-      </form>
-    </li>
-  </ul>
-</h1>
+<script type="text/babel">
+  
+  class SubLinks extends React.Component {
+    render() {
+      return (
+        <h2>
+          <ul>
+            <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="portfolio">Portfolio</a></li>
+            <li><a href="watchlist">Watchlist</a></li>
+            <li style={ {float:"right"}}><a href="SignUpPage">Login</a></li>
+            <li style={ {float:"right"}}>
+              <form action="/stockinfo.html" method="post">
+                <input type="text" name="ticker" placeholder="Enter ticker"/>
+                <input type="submit" value="Search"/>
+              </form>
+            </li>
+          </ul>
+        </h2>);
+    }
+  }
 
-<h2>
-  <table class = "home1" align="center">
-    <tr>
-      <th>Top 10 Stocks by Market Cap</th>
-      <th>Top users</th>
-    </tr>
-    <tr>
-      <td>
-        <table class = "home2" align="center">
-          <tr>
-            <th>Name</th>
-            <th>$</th>
-            <th>#</th>
-          </tr>
-        </table>
-      </td>
-      <td>
-        <table class = "home2" align="center">
-          <tr>
-            <th>Username</th>
-            <th>Return #%</th>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</h2>
+  class SubInfo extends React.Component {
+    render() {
+      return (
+        <h2>
+          <table class = "home1" align="center">
+            <tr>
+              <th>Top 10 Stocks by Market Cap</th>
+              <th>Top users</th>
+            </tr>
+            <tr>
+              <td>
+                <table class = "home2" align="center">
+                  <tr>
+                    <th>Name</th>
+                    <th>$</th>
+                    <th>#</th>
+                  </tr>
+                </table>
+              </td>
+              <td>
+                <table class = "home2" align="center">
+                  <tr>
+                    <th>Username</th>
+                    <th>Return #%</th>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </h2>);
+    }
+  }
 
+  ReactDOM.render(<SubLinks />, document.getElementById('root'))
+  ReactDOM.render(<SubInfo />, document.getElementById('subInfo'))
 
+  //ReactDOM.render(<SubInfoList />, document.getElementById('subInfo'))
+  //ReactDOM.render(<subHeaderInfo />, document.getElementById('subInfo'))
+</script>
 
 <footer>
   <p></p>
