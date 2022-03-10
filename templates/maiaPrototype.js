@@ -5,6 +5,15 @@ const ListItem = props => {
     return e('li',{className:'list-item', onClick: props.onDelete},props.title);
 }
 
+function NavBarItem(props) {
+    return (
+        <div>
+            
+        </div>
+    )
+}
+
+
 class List extends React.Component {
     constructor() {
         super();

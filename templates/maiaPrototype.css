@@ -2,3 +2,49 @@
     padding: 10px;
     border: 2px solid black;
 }
+
+#ProfileName{
+    font-size: larger;
+}
+
+#ProfileSubInfo{
+    font-size:medium;
+}
+
+h1 {
+    background-color: darkred;
+    padding: 1px;
+    text-align:center;
+    color: white;
+    float: left;
+    padding: 5px;
+    height: 100%;
+    
+}
+
+#button{
+    float: right;
+    padding: 10px;
+    
+}
+
+#descriptionlabel{
+    float: left;
+    padding: 20px;
+
+
+}
+
+
+
+#profileText {
+    padding: 10px;
+    text-align: center;
+    float: center;
+    
+}
+
+ul{
+    list-style-type: none;
+}
+

@@ -1,15 +1,71 @@
 <html>  
     <head>  
-        <title> React with npm</title>
+        <title> Profile Page </title>
         <!--When we deploy replace development.js with production.min.js-->    
         <link rel="stylesheet" href="maiaPrototype.css">
         <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>  
     <body>
-        <h1>test test test</h1>
-        <div id="stock-list"></div>
-        
-        <script src="maiaPrototype.js"></script>               
+        <h1 id="root"></h1>
+        <div id="info"></div>
+        <script type="text/babel">
+            class ProfileInfo extends React.Component {
+                render(){
+                    return(
+                            <ul>
+                                <li id="ProfileName">Name Placeholder</li>
+                                <li id="ProfileSubInfo">UserName Placeholder</li>
+                                <li id="ProfileSubInfo">Email Placeholder</li>
+                                <li id="ProfileSubInfo">Placeholder</li>
+                            </ul>
+                    )
+                }
+            }
+
+            class ProfileSubInfo extends React.Component{
+                render(){
+                    return(
+                        <div id='profileText'>
+                            <h2> Profile Info to Edit: </h2>
+                            <form action method='post'>
+                                <hr></hr>
+                                <br/>
+                                <br/>
+                                <label for="fname">First name:</label>
+                                <input type="text" id="fname" name="fname"></input>
+                                <label for="lname">Last name:</label>
+                                <input type="text" id="lname" name="lname"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" name="email"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="description" id="descriptionlabel">Description:</label><br/><br/>
+                                <textarea rows='5' cols='60' name='description'></textarea>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="number" id="number">Phone number:</label><br/>
+                                <input type="number" id="number" name="number" min="100000000"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="location" id="location">Location:</label><br/>
+                                <input type="text" id="location" name="location"></input>
+                                <br/><br/>
+                                <input type="submit" id="button" name="button"></input>
+
+
+                                
+                            </form>
+                        </div>
+                    )
+                }
+            }
+
+            ReactDOM.render(<ProfileInfo />, document.getElementById('root'))
+            ReactDOM.render(<ProfileSubInfo />, document.getElementById('info'))
+        </script>     
     </body>  
 </html> 
