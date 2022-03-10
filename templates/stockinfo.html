@@ -5,27 +5,77 @@
 <html>
 <head>
     <Title> {{ ticker }} </Title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <form action="/stockinfo.html" method="post">
-        <input type="text" name="ticker">
-        <input type="submit" value="Enter ticker">
+    <header>
+        <h2>ProfStock</h2>
+      </header>
+      <h1>
+        <ul>
+            <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="portfolio">Portfolio</a></li>
+          <li><a href="watchlist">Watchlist</a></li>
+          <li style="float:right"><a href="SignUpPage">Login</a></li>
+          <li style="float:right">
+            <!-- send post request with stock ticker-->
+            <form action="/stockinfo.html" method="post">
+            <input type="text" name="ticker" placeholder="Enter ticker">
+            <input type="submit" value="Search">
+            </form>
+          </li>
+        </ul>
+      </h1>
 
     <!-- 
         items in double braces are coming from the POST requests in stocksearch.html;
         variables must match what's in the stockinfo app route
     -->
     <div class="tickerinfo">
-        <p> Ticker symbol: {{ ticker }} </p>
-        <p> Date of Information: {{ date }} </p>
-        <p> Close Value: {{ close }} </p>
-        <p> Open Price: {{ openprice }} </p>
-        <P> Day High: {{ high }} </P>
-        <p> Day Low: {{ low }} </p>
-        <p> Daily Volume: {{ volume }} </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>{{symbol}}</th>
+                    <th>
+                        <form action="/addstock" method="post">
+                            <input type="hidden" name="ticker" value="{{symbol}}">
+                            <input type="submit" value="+">
+                        </form>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">Date of Information</th>
+                    <td>{{date}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Close Price</th>
+                    <td>{{close}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Open Price</th>
+                    <td>{{openprice}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Day High</th>
+                    <td>{{high}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Day Low</th>
+                    <td>{{low}}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Daily Volume</th>
+                    <td>{{volume}}</td>
+                </tr>
+            </tbody>
+        </table>
 
     </div>
-    
-
+<footer>
+    <p></p>
+</footer>
 </body>
 </html>
