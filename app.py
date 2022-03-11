@@ -1,21 +1,18 @@
+# working from https://docs.sqlalchemy.org/en/14/tutorial/metadata.html
+from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
+from sqlalchemy.orm import Session
+import flask
+from flask import Flask, render_template, request
 from urllib import response
 import requests
 import json
-from flask import Flask, render_template, request
-from flask_mysqldb import MySQL
-import subprocess as sp
 
+# initializing flask app and database connection
 app = Flask(__name__)
-mysql = MySQL()
+engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+session = Session(engine)
+metadata_obj = MetaData()
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
-app.config['MYSQL_DB'] = 'profstock'
-
-
-
-mysql.init_app(app)
 
 
 # route decorators
@@ -24,40 +21,22 @@ mysql.init_app(app)
 def home():
     return render_template("index.html")
 
-# split this method up into GET and POST requests
-@app.route("/addstock", methods=['GET','POST'])
-def addstock():
+# Gets list of all registered users
+@app.route("/users", methods=['GET'])
+def users():
 
-    # database connection has to be done in a view
-    # basically in any of the app.route decorator functions
-    conn = mysql.connection
-    cursor = conn.cursor()
-    ticker = request.form['ticker']
+    users = Table('users', metadata_obj, autoload_with=engine)
+    statement = session.query(users).all()
+    allusers = json.dumps([row._asdict() for row in statement], indent=4)
+    return render_template('users.html', allusers=allusers)
 
-    # fetchall gets all the results of query
-    # fetchone gets one result from the query
-    if request.method == 'GET':
-        cursor.execute("select * from stocks where stockid = 4;")
-        data = cursor.fetchone()
-        return str(data)
+@app.route("/userportfolio", methods=['GET'])
+def userportfolio(uid,username):
+    return 56
 
-    if request.method =='POST':
-        cursor.execute("""INSERT INTO stocks
-            (ticker,
-            name)
-            VALUES (%s, 'Home Depot')""", [ticker])
-        cursor.execute("select * from stocks;")
-        data = cursor.fetchall()
-        conn.commit()
-        return str(data)
-
-@app.route("/SignUpPage.html")
-def signup():
-    return render_template("SignUpPage.html")
-
-@app.route("/stocksearch.html")
-def stockinfo():
-    return render_template("stocksearch.html")
+@app.route("/userportfolio/change")
+def changeportfolio(uid,username):
+    return 72
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -90,67 +69,6 @@ def pullstockinfo():
                             low=low,
                             volume=volume,
                             date=date)
-
-# Andrew (prototype)
-# Simply gets all names from users table of the database
-@app.route("/pullFromSQL", methods=['POST'])
-def getFromDB():
-        conn = mysql.connection
-        cursor = conn.cursor()
-
-        cursor.execute("select firstname, lastname from users;")
-        data = cursor.fetchall()
-
-        return str(data)
-
-# Andrew (prototype)
-@app.route("/postToSQL", methods=['POST'])
-def writeToDB():
-        conn = mysql.connection
-        cursor = conn.cursor()
-
-        firstname = request.form['firstname']
-        lastname = request.form['lastname']
-
-        cursor.execute("""INSERT INTO 
-        users (
-            firstname,
-            lastname)
-            VALUES (%s,%s)""", (firstname, lastname))
-
-        conn.commit() 
-
-        return render_template("AndrewPrototype.html")
-
-
-# This is the actual endpoint that will add a new user's info to the db
-# Still need to implement a way to check to make sure user email is not already
-# in use, etc.
-# Password is also just being stored as plain text right now, which is also probably
-# not good
-@app.route("/addNewUser", methods=['POST'])
-def addToDB():
-        conn = mysql.connection
-        cursor = conn.cursor()
-
-        username = request.form['username']
-        email = request.form['email']
-        firstname = request.form['firstname']
-        lastname = request.form['lastname']
-        pw = request.form['pw']
-
-        cursor.execute("""INSERT INTO 
-        users (
-            username,
-            email,
-            firstname,
-            lastname, 
-            pw) 
-            VALUES (%s,%s,%s,%s,%s)""", (username, email, firstname, lastname, pw))
-
-        conn.commit() 
-
-        return render_template("SignUpPage.html")
 
 
 if __name__ == '__main__':
