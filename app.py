@@ -1,14 +1,19 @@
 # working from https://docs.sqlalchemy.org/en/14/tutorial/metadata.html
 from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
 from sqlalchemy.orm import Session
-import flask
 from flask import Flask, render_template, request
+from flask_s3 import FlaskS3
 from urllib import response
 import requests
 import json
 
 # initializing flask app and database connection
 app = Flask(__name__)
+app.config['FLASKS3_BUCKET_NAME'] = 'senior-proj'
+app.config['FLASKS3_BUCKET_DOMAIN'] = 'https://senior-proj.s3.us-west-2.amazonaws.com/'
+app.config['AWS_ACCESS_KEY_ID'] = 'AKIA6RPNVUYSTLPHJFFQ'
+app.config['AWS_SECRET_ACCESS_KEY'] = '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'
+s3 = FlaskS3(app)
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 session = Session(engine)
 metadata_obj = MetaData()
@@ -31,11 +36,13 @@ def users():
     return render_template('users.html', allusers=allusers)
 
 @app.route("/userportfolio", methods=['GET'])
-def userportfolio(uid,username):
+def userportfolio():
+    # need uid and username
     return 56
 
-@app.route("/userportfolio/change")
-def changeportfolio(uid,username):
+@app.route("/userportfolio/change", methods=['POST'])
+def changeportfolio():
+    # need uid and username
     return 72
 
 # Ryan Edwards
