@@ -1,19 +1,65 @@
-# working from https://docs.sqlalchemy.org/en/14/tutorial/metadata.html
-from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
-from sqlalchemy.orm import Session
-from flask import Flask, render_template, request
-from flask_s3 import FlaskS3
+import json, requests
+
+from flask import Flask, render_template, request, jsonify, redirect, session, url_for
+from os import environ as env
+from urllib.parse import quote_plus, urlencode
 from urllib import response
-import requests
-import json
 
-# initializing flask app and database connection
-app = Flask(__name__)
+from authlib.integrations.flask_client import OAuth
+from dotenv import find_dotenv, load_dotenv
 
+from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
+from sqlalchemy.orm import Session as Alcsession
+
+# initializing database connection
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
-session = Session(engine)
+alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+
+app = Flask(__name__)
+app.secret_key = env.get("APP_SECRET_KEY")
+oauth = OAuth(app)
+
+oauth.register(
+    "auth0",
+    client_id=env.get("AUTH0_CLIENT_ID"),
+    client_secret=env.get("AUTH0_CLIENT_SECRET"),
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+)
+
+@app.route("/login")
+def login():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri="http://localhost:5000/callback"
+    )
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(
+        "https://" + env.get("AUTH0_DOMAIN")
+        + "/v2/logout?"
+        + urlencode(
+            {
+                "returnTo": url_for("home", _external=True),
+                "client_id": env.get("AUTH0_CLIENT_ID"),
+            },
+            quote_via=quote_plus,
+        )
+    )
 
 
 # route decorators
@@ -22,25 +68,30 @@ metadata_obj = MetaData()
 def home():
     return render_template("index.html")
 
+@app.route("/profile.html")
+def dashboard():
+    if (oauth.auth0.authorize_access_token() == session["user"]):
+        return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
+    else:
+        return redirect("/login")
+
 
 # Gets list of all registered users
 @app.route("/users", methods=['GET'])
 def users():
-
     users = Table('users', metadata_obj, autoload_with=engine)
-    statement = session.query(users).all()
+    statement = alcsession.query(users).all()
     allusers = json.dumps([row._asdict() for row in statement], indent=4)
-    return render_template('users.html', allusers=allusers)
 
-@app.route("/userportfolio", methods=['GET'])
-def userportfolio():
-    # need uid and username
-    return 56
-
-@app.route("/userportfolio/change", methods=['POST'])
-def changeportfolio():
-    # need uid and username
-    return 72
+    if (session):
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        email = userinfo['userinfo']['email']
+        print(pretty)
+        print(userinfo)
+        return render_template("users.html",
+                                            email=email)
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -73,6 +124,18 @@ def pullstockinfo():
                             volume=volume,
                             date=date)
 
+@app.route("/portfolio")
+def portfolio():
+    if (session):
+        return render_template("portfolio.html")
+    else:
+        return redirect("/login")
 
+@app.route("/watchlist")
+def watchlist():
+    return render_template("waitinglist.html")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
 app.static_folder = 'static'

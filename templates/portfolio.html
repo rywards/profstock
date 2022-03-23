@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 
 <!--
-  Ben Adelson
+  Ryan Edwards
+  Appended from index.html by Ben Adelson
 -->
 <html lang="en">
 <head>
@@ -30,8 +31,8 @@
         <h2>
           <ul>
             <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="portfolio">Portfolio</a></li>
-            <li><a href="watchlist">Watchlist</a></li>
+            <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+            <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
             <li style={ {float:"right"}}>
               <form action="/stockinfo.html" method="post">
                 <input type="text" name="ticker" placeholder="Enter ticker"/>
@@ -48,7 +49,7 @@
     }
   }
 
-  function Top10Stock() {
+  function portfolio() {
     const items = [
     {
       id: 1,
@@ -56,69 +57,6 @@
       marketCap:'$2.599 T',
       price: '$159.30',
       ticket: 'AAPL'
-    },
-    {
-      id: 2,
-      name: 'Saudi Aramco',
-      marketCap:'$2.386 T',
-      price: '$11.94',
-      ticket: '2222.SR'
-    },
-    {
-      id: 3,
-      name: 'MICROSOFT CORP.',
-      marketCap:'$2.090 T',
-      price: '$278.91',
-      ticket: 'MSFT'
-    },
-    {
-      id: 4,
-      name: 'Alphabet (Google)',
-      marketCap:'$1.670 T',
-      price: '$2,529',
-      ticket: 'GOOG'
-    },
-    {
-      id: 5,
-      name: 'Amazon',
-      marketCap:'$1.398 T',
-      price: '$2,749',
-      ticket: 'AMZN'
-    },
-    {
-      id: 6,
-      name: 'Tesla',
-      marketCap:'$831.54 B',
-      price: '$804.58',
-      ticket: 'TSLA'
-    },
-    {
-      id: 7,
-      name: 'Berkshire Hathaway',
-      marketCap:'$715.71 B',
-      price: '$484,527',
-      ticket: 'BRK-A'
-    },
-    {
-      id: 8,
-      name: 'Meta (Facebook)',
-      marketCap:'$535.97 B',
-      price: '$187.47',
-      ticket: 'FB'
-    },
-    {
-      id: 9,
-      name: 'NVIDIA',
-      marketCap:'$532.09 B',
-      price: '$213.52',
-      ticket: 'NVDA'
-    },
-    {
-      id: 10,
-      name: 'TSMC',
-      marketCap:'$519.23 B',
-      price: '$99.29',
-      ticket: 'TSM'
     }]
 
 
@@ -156,7 +94,7 @@
     );
   }
 
-  function TopUsers() {
+  function topusers() {
     const items = [
     {
       id: 1,
@@ -227,10 +165,10 @@
         <h3>
           <div id="homeContainer">
             <div id="Top10StockTable">
-              {Top10Stock()}
+              {portfolio()}
             </div>
             <div id="TopUsersTable">
-              {TopUsers()}
+              {topusers()}
             </div>
             <div id="clear"></div>
         </div>
