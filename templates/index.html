@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 
+
 <!--
   Ben Adelson
 -->
@@ -9,6 +10,9 @@
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
+  <script src="../src/components/LoginButton.js"></script>
+  <script src="../src/components/LogoutButton.js"></script>
+
 
   <title>Home</title>
   <meta charset="utf-8">
@@ -25,6 +29,9 @@
 
 <script>
   //import React from 'react';
+  import LoginButton from './components/LoginButton';
+  import LogoutButton from './components/LogoutButton';
+  import { useAuth0 } from "@auth0/auth0-react";
 </script>
 <script type="text/babel">
   class SubLinks extends React.Component {
@@ -41,7 +48,7 @@
                 <input type="submit" value="Search"/>
               </form>
             </li>
-            <li style={ {float:"right"}}><a href="SignUpPage">Login</a></li>
+            <li style={ {float:"right"}}><a href="SignUpPage.html">Login</a></li>
           </ul>
         </h2>);
     }
