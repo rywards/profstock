@@ -1,20 +1,21 @@
+<!DOCTYPE html>
 <html>  
     <head>  
         <title> Profile Page </title>
         <!--When we deploy replace development.js with production.min.js-->    
-        <link rel="stylesheet" href="maiaPrototype.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     </head>  
     <body>
-        <h1 id="root"></h1>
+        <h1 class= "pfph1" id="root"></h1>
         <div id="info"></div>
         <script type="text/babel">
             class ProfileInfo extends React.Component {
                 render(){
                     return(
-                            <ul>
+                            <ul id="pfpdisplayinfo">
                                 <li id="ProfileName">Name Placeholder</li>
                                 <li id="ProfileSubInfo">UserName Placeholder</li>
                                 <li id="ProfileSubInfo">Email Placeholder</li>
@@ -29,14 +30,14 @@
                     return(
                         <div id='profileText'>
                             <h2> Profile Info to Edit: </h2>
-                            <form action method='post'>
+                            <form action="/editUser" method='post'>
                                 <hr></hr>
                                 <br/>
                                 <br/>
-                                <label for="fname">First name:</label>
-                                <input type="text" id="fname" name="fname"></input>
-                                <label for="lname">Last name:</label>
-                                <input type="text" id="lname" name="lname"></input>
+                                <label for="firstname">First name:</label>
+                                <input type="text" name="firstname"></input>
+                                <label for="lastname">Last name:</label>
+                                <input type="text" name="lastname"></input>
                                 <br/><br/>
                                 <hr></hr>
                                 <label for="email">Email:</label>
@@ -51,13 +52,10 @@
                                 <input type="number" id="number" name="number" min="100000000"></input>
                                 <br/><br/>
                                 <hr></hr>
-                                <label for="location" id="location">Location:</label><br/>
-                                <input type="text" id="location" name="location"></input>
+                                <label for="location" >Location:</label><br/>
+                                <input type="text" name="location"></input>
                                 <br/><br/>
-                                <input type="submit" id="button" name="button"></input>
-
-
-                                
+                                <input type="submit" id="pfpbutton" name="button"></input>
                             </form>
                         </div>
                     )
