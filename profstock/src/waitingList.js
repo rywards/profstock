@@ -1,3 +1,3 @@
-function waitingList(){
+function WatchList(){
 
 }
