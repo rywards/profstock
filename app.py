@@ -16,7 +16,6 @@ metadata_obj = MetaData()
 
 
 
-
 # route decorators
 # these determine the location of different endpoints
 @app.route("/")
@@ -42,26 +41,6 @@ def userportfolio():
 def changeportfolio():
     # need uid and username
     return 72
-
-@app.route("/testdbcon")
-def testdb():
-    conn = mysql.connection
-    cursor = conn.cursor()
-
-    # fetchall gets all the results of query
-    # fetchone gets one result from the query
-    cursor.execute("select * from stocks where stockid = 4;")
-    data = cursor.fetchone()
-    return str(data)
-
-@app.route("/SignUpPage.html")
-def signup():
-    return render_template("SignUpPage.html")
-
-@app.route("/stocksearch.html")
-def stockinfo():
-    return render_template("stocksearch.html")
-
 
 # Ryan Edwards
 # this is where the ticker post request data goes
