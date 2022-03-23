@@ -1,23 +1,19 @@
+# working from https://docs.sqlalchemy.org/en/14/tutorial/metadata.html
+from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
+from sqlalchemy.orm import Session
+from flask import Flask, render_template, request
+from flask_s3 import FlaskS3
 from urllib import response
 import requests
 import json
-from flask import Flask, render_template, request
-from flask_mysqldb import MySQL
-import subprocess as sp
 
+# initializing flask app and database connection
 app = Flask(__name__)
 
+engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+session = Session(engine)
+metadata_obj = MetaData()
 
-mysql = MySQL()
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
-app.config['MYSQL_DB'] = 'profstock'
-mysql.init_app(app)
-
-
-
-mysql.init_app(app)
 
 
 # route decorators
@@ -26,24 +22,25 @@ mysql.init_app(app)
 def home():
     return render_template("index.html")
 
-@app.route("/testdbcon")
-def testdb():
-    conn = mysql.connection
-    cursor = conn.cursor()
 
-    # fetchall gets all the results of query
-    # fetchone gets one result from the query
-    cursor.execute("select * from stocks where stockid = 4;")
-    data = cursor.fetchone()
-    return str(data)
+# Gets list of all registered users
+@app.route("/users", methods=['GET'])
+def users():
 
-@app.route("/SignUpPage.html")
-def signup():
-    return render_template("SignUpPage.html")
+    users = Table('users', metadata_obj, autoload_with=engine)
+    statement = session.query(users).all()
+    allusers = json.dumps([row._asdict() for row in statement], indent=4)
+    return render_template('users.html', allusers=allusers)
 
-@app.route("/stocksearch.html")
-def stockinfo():
-    return render_template("stocksearch.html")
+@app.route("/userportfolio", methods=['GET'])
+def userportfolio():
+    # need uid and username
+    return 56
+
+@app.route("/userportfolio/change", methods=['POST'])
+def changeportfolio():
+    # need uid and username
+    return 72
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -76,7 +73,6 @@ def pullstockinfo():
                             volume=volume,
                             date=date)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
 
 app.static_folder = 'static'
