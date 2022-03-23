@@ -153,15 +153,11 @@ def addToDB():
 
 #Jimmy Trieu
 #grab data from the SQL for the portfolio
-@app.route("/Portfolio", methods=['POST'])
+@app.route("/portfolio")
 def getUserStocks():
-        conn = mysql.connection
-        cursor = conn.cursor()
 
-        cursor.execute("select * from userstocks;")
 
-        conn.commit()
-        return render_template("Portfolio.html")
+    return render_template("portfolio.html")
 
 
 if __name__ == '__main__':
