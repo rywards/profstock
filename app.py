@@ -9,6 +9,7 @@ import json
 
 # initializing flask app and database connection
 app = Flask(__name__)
+
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 session = Session(engine)
 metadata_obj = MetaData()
@@ -20,6 +21,7 @@ metadata_obj = MetaData()
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 # Gets list of all registered users
 @app.route("/users", methods=['GET'])
@@ -60,11 +62,10 @@ def pullstockinfo():
     low = api_response['low']
     volume = api_response['volume']
     date = api_response['date']
-    symbol = api_response['symbol']
 
 
     return render_template("stockinfo.html", 
-                            symbol=symbol,  
+                            ticker=ticker,  
                             close=close,
                             openprice=openprice,
                             high=high,
@@ -73,7 +74,5 @@ def pullstockinfo():
                             date=date)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
 app.static_folder = 'static'
