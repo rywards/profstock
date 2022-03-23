@@ -9,9 +9,11 @@ import json
 
 # initializing flask app and database connection
 app = Flask(__name__)
+
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 session = Session(engine)
 metadata_obj = MetaData()
+
 
 
 
@@ -20,6 +22,7 @@ metadata_obj = MetaData()
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 # Gets list of all registered users
 @app.route("/users", methods=['GET'])
@@ -39,6 +42,26 @@ def userportfolio():
 def changeportfolio():
     # need uid and username
     return 72
+
+@app.route("/testdbcon")
+def testdb():
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    # fetchall gets all the results of query
+    # fetchone gets one result from the query
+    cursor.execute("select * from stocks where stockid = 4;")
+    data = cursor.fetchone()
+    return str(data)
+
+@app.route("/SignUpPage.html")
+def signup():
+    return render_template("SignUpPage.html")
+
+@app.route("/stocksearch.html")
+def stockinfo():
+    return render_template("stocksearch.html")
+
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -60,11 +83,10 @@ def pullstockinfo():
     low = api_response['low']
     volume = api_response['volume']
     date = api_response['date']
-    symbol = api_response['symbol']
 
 
     return render_template("stockinfo.html", 
-                            symbol=symbol,  
+                            ticker=ticker,  
                             close=close,
                             openprice=openprice,
                             high=high,
