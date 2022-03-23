@@ -11,8 +11,8 @@ import json
 app = Flask(__name__)
 app.config['FLASKS3_BUCKET_NAME'] = 'senior-proj'
 app.config['FLASKS3_BUCKET_DOMAIN'] = 'https://senior-proj.s3.us-west-2.amazonaws.com/'
-app.config['AWS_ACCESS_KEY_ID'] = 'AKIA6RPNVUYSTLPHJFFQ'
-app.config['AWS_SECRET_ACCESS_KEY'] = 'roI5B2lmYFYVRaC2EthHQ8JVELa/nXv4pAnzfwHK'
+app.config['AWS_ACCESS_KEY_ID'] = 'REPLACE'
+app.config['AWS_SECRET_ACCESS_KEY'] = 'REPLACE'
 s3 = FlaskS3(app)
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 session = Session(engine)
