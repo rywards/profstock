@@ -1,4 +1,5 @@
 import json, requests
+from textwrap import indent
 
 from flask import Flask, render_template, request, jsonify, redirect, session, url_for
 from os import environ as env
@@ -87,19 +88,46 @@ def users():
         sessioninfo=session.get('user')
         pretty=json.dumps(sessioninfo, indent=4)
         userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        username = userinfo['userinfo']['name']
         email = userinfo['userinfo']['email']
-        print(pretty)
-        print(userinfo)
-        return render_template("users.html",
-                                            email=email)
+        
+        statement = users.insert().values(uid=uid,
+                                          username=username,
+                                          email=email)
+        alcsession.execute(statement)
+        alcsession.commit()
+        return render_template("users.html", uid=uid)
+
+@app.route("/topusers", methods=['GET'])
+def topusers():
+    return 45
 
 # Ryan Edwards
 # this is where the ticker post request data goes
 # we can do some calculations here as necessary
-@app.route("/stockinfo.html", methods=['POST'])
+@app.route("/stockinfo", methods=['POST'])
 def pullstockinfo():
     ticker = request.form['ticker']
 
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    result = alcsession.query(stocks).filter_by(ticker = ticker).first()
+    
+    if not result:
+
+        params = {
+            'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+        }
+
+        api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
+        api_response = api_result.json()
+        name = api_response['name']
+        newstock = stocks.insert().values(ticker=ticker,
+                                          name=name)
+        alcsession.execute(newstock)
+        alcsession.commit()
+
+    
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
     }
@@ -115,6 +143,7 @@ def pullstockinfo():
     date = api_response['date']
 
 
+
     return render_template("stockinfo.html", 
                             ticker=ticker,  
                             close=close,
@@ -126,10 +155,24 @@ def pullstockinfo():
 
 @app.route("/portfolio")
 def portfolio():
+    users = Table('users', metadata_obj, autoload_with=engine)
+    
+
     if (session):
-        return render_template("portfolio.html")
+
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        name = userinfo['userinfo']['name']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+        print(uid)
+
+        return render_template("users.html", name=name,result=uid)
     else:
         return redirect("/login")
+
 
 @app.route("/watchlist")
 def watchlist():
