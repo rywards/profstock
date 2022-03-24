@@ -274,8 +274,10 @@ def stockadd():
         result = alcsession.query(users).filter_by(uid = uid).one()
         uid = result[0]
 
-        # Figure out how to get stockid
-        stockid = 0
+        # Stock id
+        ticker = request.form['ticker']
+        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+        stockid = tickerexist[0]
 
         addStock = portfolios.insert().values(portfolioid = uid, stockid = stockid)
         conn.execute(addStock)
@@ -297,7 +299,12 @@ def stockadd():
         result = alcsession.query(users).filter_by(uid = uid).one()
         uid = result[0]
 
-        # Need to get the stockid to make this work
+        # Stock id
+        ticker = request.form['ticker']
+        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+        stockid = tickerexist[0]
+
+        # Execute and commit query
         removeStock = portfolios.delete().where(portfolios.c.portfolioid == portfolioid and portfolios.c.stockid == stockid)
         conn.execute(removeStock)
         conn.commit()
