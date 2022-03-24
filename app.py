@@ -71,8 +71,8 @@ def home():
     return render_template("index.html")
 
 @app.route("/profile.html")
-def dashboard():
-    if (oauth.auth0.authorize_access_token() == session["user"]):
+def profile():
+    if (session):
         return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
     else:
         return redirect("/login")
@@ -98,7 +98,7 @@ def users():
                                           email=email)
         alcsession.execute(statement)
         alcsession.commit()
-        return render_template("users.html", uid=uid)
+        return render_template("users.html", username=username)
 
 @app.route("/topusers", methods=['GET'])
 def topusers():
@@ -201,14 +201,64 @@ def portfolio():
             stockdata['buydate'] = jsonport['quantity']
             stockdata['initvalue'] = jsonport['initvalue']
             print(stockdata)
-        return stockdata
+        return render_template("portfolio.html", stockdata=stockdata)
     else:
         return redirect("/login")
 
 
-@app.route("/watchlist")
+@app.route("/watchlist", methods=['GET','POST'])
 def watchlist():
-    return render_template("waitinglist.html")
+
+    users = Table('users', metadata_obj, autoload_with=engine)
+    watchlists = Table('watchlists', metadata_obj, autoload_with=engine)
+    userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+
+    if (session):
+
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        name = userinfo['userinfo']['name']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+
+        existswatch = alcsession.query(watchlists).filter_by(wid = uid).first()
+        if (not existswatch):
+            createconn = watchlists.insert().values(uid=uid,
+                                                    wid=uid,
+                                                    stockid=0)
+            alcsession.execute(createconn)
+            alcsession.commit()
+
+        existswatch = alcsession.query(watchlists).filter_by(wid = uid).all()
+        watchlistdata = {}
+        if (request.method == 'GET'):
+            for row in existswatch:
+                jsonport = json.dumps(row._asdict(), indent=4)
+                jsonport = json.loads(jsonport)
+                watchlistdata['stockid'] = jsonport['stockid']
+                print(watchlistdata)
+            return render_template("users.html")
+        
+        # if they are adding the stock
+        if (request.method == 'POST'):
+
+            ticker = request.form['ticker']
+
+            tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+            print(tickerexist[0])
+            watchlistinsert = watchlists.insert().values(uid=uid,
+                                                   wid=uid,
+                                                   stockid=tickerexist[0])
+            alcsession.execute(watchlistinsert)
+            alcsession.commit()
+            print(tickerexist)
+            return render_template("users.html")
+
+    else:
+        return redirect("/login")
 
 @app.route("/stockadd", methods=['POST','GET'])
 def stockadd():

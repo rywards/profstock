@@ -41,10 +41,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>{{symbol}}</th>
+                    <th>{{ticker}}</th>
                     <th>
-                        <form action="/addstock" method="post">
-                            <input type="hidden" name="ticker" value="{{symbol}}">
+                        <form action="/watchlist" method="post">
+                            <input type="hidden" name="ticker" value="{{ticker}}">
                             <input type="submit" value="+">
                         </form>
                     </th>
