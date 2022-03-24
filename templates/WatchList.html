@@ -14,7 +14,6 @@
             <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
           <li><a href="portfolio">Portfolio</a></li>
           <li style="float:right">
-            <!-- send post request with stock ticker-->
             <form action="/stockinfo" method="post">
             <input type="text" name="ticker" placeholder="Enter ticker">
             <input type="submit" value="Search">
@@ -27,6 +26,13 @@
             {% endif %}
         </ul>
       </h1>
+
+      <input type="text" value="Watch List" onclick="waitingList()">
+      <table border="3">
+        <tbody>
+        <tr><td>Stock Name</td><td>Current Price</td><td>Date Added</td></tr>
+        </tbody>
+        </table>
 <footer>
     <p></p>
 </footer>
