@@ -274,6 +274,57 @@ def watchlist():
     else:
         return redirect("/login")
 
+@app.route("/stockadd", methods=['POST','GET'])
+def stockadd():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    conn = engine.connect()
+
+    if (session):
+        # get user id from session info in sqlalchemy query
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+
+        # Stock id
+        ticker = request.form['ticker']
+        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+        stockid = tickerexist[0]
+
+        addStock = portfolios.insert().values(portfolioid = uid, stockid = stockid)
+        conn.execute(addStock)
+        conn.commit()
+
+
+
+@app.route("/stockremove", methods=['POST','GET'])
+def stockremove():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    conn = engine.connect()
+
+    if (session):
+        # get user id from session info in sqlalchemy query
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+
+        # Stock id
+        ticker = request.form['ticker']
+        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+        stockid = tickerexist[0]
+
+        # Execute and commit query
+        removeStock = portfolios.delete().where(portfolios.c.portfolioid == portfolioid and portfolios.c.stockid == stockid)
+        conn.execute(removeStock)
+        conn.commit()
+
+    
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
