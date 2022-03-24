@@ -286,7 +286,7 @@ def stockadd():
 
 
 @app.route("/stockremove", methods=['POST','GET'])
-def stockadd():
+def stockremove():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     conn = engine.connect()
 
