@@ -215,7 +215,7 @@ def watchlist():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
     if (session):
-
+        
         sessioninfo=session.get('user')
         pretty=json.dumps(sessioninfo, indent=4)
         userinfo = json.loads(pretty)
@@ -231,22 +231,36 @@ def watchlist():
                                                     stockid=0)
             alcsession.execute(createconn)
             alcsession.commit()
-
+        
         existswatch = alcsession.query(watchlists).filter_by(wid = uid).all()
+        
         watchlistdata = {}
+        
+        # this method is used when the watchlist is being retrieved
         if (request.method == 'GET'):
+            ids = []
+            stocknames = []
             for row in existswatch:
                 jsonport = json.dumps(row._asdict(), indent=4)
                 jsonport = json.loads(jsonport)
                 watchlistdata['stockid'] = jsonport['stockid']
-                print(watchlistdata)
-            return render_template("users.html")
+                print(type(watchlistdata))
+                ids.append(watchlistdata['stockid'])
+            
+            for e in range(len(ids)):
+                try:
+                    getname = alcsession.query(stocks).filter_by(stockid=ids[e]).first()
+                    stocknames.append(getname[2])
+
+                except TypeError:
+                    continue
+
+            return render_template("watchlist.html",stocknames=stocknames)
         
-        # if they are adding the stock
+        # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
 
             ticker = request.form['ticker']
-
             tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
             print(tickerexist[0])
             watchlistinsert = watchlists.insert().values(uid=uid,
@@ -254,8 +268,8 @@ def watchlist():
                                                    stockid=tickerexist[0])
             alcsession.execute(watchlistinsert)
             alcsession.commit()
-            print(tickerexist)
-            return render_template("users.html")
+            
+            return render_template("WatchList.html",tickerexist=tickerexist)
 
     else:
         return redirect("/login")
