@@ -210,6 +210,50 @@ def portfolio():
 def watchlist():
     return render_template("waitinglist.html")
 
+@app.route("/stockadd", methods=['POST','GET'])
+def stockadd():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    conn = engine.connect()
+
+    if (session):
+        # get user id from session info in sqlalchemy query
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+
+        # Figure out how to get stockid
+        stockid = 0
+
+        addStock = portfolios.insert().values(portfolioid = uid, stockid = stockid)
+        conn.execute(addStock)
+        conn.commit()
+
+
+
+@app.route("/stockremove", methods=['POST','GET'])
+def stockadd():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    conn = engine.connect()
+
+    if (session):
+        # get user id from session info in sqlalchemy query
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        result = alcsession.query(users).filter_by(uid = uid).one()
+        uid = result[0]
+
+        # Need to get the stockid to make this work
+        removeStock = portfolios.delete().where(portfolios.c.portfolioid == portfolioid and portfolios.c.stockid == stockid)
+        conn.execute(removeStock)
+        conn.commit()
+
+    
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
