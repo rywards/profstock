@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 import json, requests
 from textwrap import indent
 
@@ -153,13 +154,16 @@ def pullstockinfo():
                             volume=volume,
                             date=date)
 
-@app.route("/portfolio")
+@app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
     users = Table('users', metadata_obj, autoload_with=engine)
-    
-
+    userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    # check to make sure a session is active
     if (session):
 
+        # get user id from session info in sqlalchemy query
         sessioninfo=session.get('user')
         pretty=json.dumps(sessioninfo, indent=4)
         userinfo = json.loads(pretty)
@@ -167,9 +171,37 @@ def portfolio():
         name = userinfo['userinfo']['name']
         result = alcsession.query(users).filter_by(uid = uid).one()
         uid = result[0]
-        print(uid)
 
-        return render_template("users.html", name=name,result=uid)
+        # get portfolio from sqlalchemy query
+        existsconn = alcsession.query(userstocks).filter_by(portfolioid = uid).first()
+        existsportfolio = alcsession.query(portfolios).filter_by(portfolioid = uid).all()
+        if (not existsconn):
+            createconn = userstocks.insert().values(portfolioid=uid,
+                                                        uid=uid,
+                                                        wid=uid)
+            alcsession.execute(createconn)
+            alcsession.commit()
+
+        # creating a root entry
+        if (not existsportfolio):
+            stockid=0
+            createportfolio = portfolios.insert().values(portfolioid=uid,
+                                                         stockid=stockid)
+            alcsession.execute(createportfolio)
+            alcsession.commit()
+
+        # cleaning up portfolio output
+        #jsonport = json.dumps([row._asdict() for row in existsportfolio], indent=4)
+        stockdata = {}
+        for row in existsportfolio:
+            jsonport = json.dumps(row._asdict(), indent=4)
+            jsonport = json.loads(jsonport)
+            stockdata['portfolioid'] = jsonport['portfolioid']
+            stockdata['stockid'] = jsonport['stockid']
+            stockdata['buydate'] = jsonport['quantity']
+            stockdata['initvalue'] = jsonport['initvalue']
+            print(stockdata)
+        return stockdata
     else:
         return redirect("/login")
 

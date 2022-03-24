@@ -5,12 +5,14 @@
 </head>
 <body>
 <!-- action is the request location on the server -->
-<p>
-    <link rel="users" href="{{ url_for('users')}}">
-    <code>{{result}}</code>
-    <code>{{name}}</code>
-    <code>{{uid}}</code>
-</p>
+<h1>Test javascript</h1>
+<p id="demo"></p>
+<script>
+    let text = {{stockdata}};
+    const obj = JSON.parse(text);
+    document.getElementById("demo").innerHTML =
+    obj.portfolioid + " " + obj.stockid;
+</script>
 
 </body>
 </html>
