@@ -6,13 +6,10 @@
 <body>
 <!-- action is the request location on the server -->
 <h1>Test javascript</h1>
-<p id="demo"></p>
-<script>
-    let text = {{stockdata}};
-    const obj = JSON.parse(text);
-    document.getElementById("demo").innerHTML =
-    obj.portfolioid + " " + obj.stockid;
-</script>
+<form action="/watchlist" method="post">
+    <input type="text" name="ticker" placeholder="Enter ticker">
+    <input type="submit" value="Search">
+    </form>
 
 </body>
 </html>
