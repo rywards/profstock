@@ -29,9 +29,9 @@
           </h1>
           <label for="stocks">Stocks</label>
             <select name="stocks">
-                <option value="MSFT">microsoft</option>
-                <option value="AAPL">apple</option>
-
+                {%for data in stockdata%}
+                <option value="{{data}}">{{data}}</option>
+                {%endfor%}
             </select>
 
             <div class="tickerinfo">
