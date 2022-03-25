@@ -45,7 +45,19 @@
                     <th>
                         <form action="/watchlist" method="post">
                             <input type="hidden" name="ticker" value="{{ticker}}">
-                            <input type="submit" value="+">
+                            <input type="submit" name="changelist" value="Add Watchlist">
+                        </form>
+                        <form action="/watchlist" method="post">
+                            <input type="hidden" name="ticker" value="{{ticker}}">
+                            <input type="submit" name="changelist" value="Remove Watchlist">
+                        </form>
+                        <form action="/portfolio" method="post">
+                            <input type="hidden" name="ticker" value="{{ticker}}">
+                            <input type="submit" name="changelist" value="Add Portfolio">
+                        </form>
+                        <form action="/portfolio" method="post">
+                            <input type="hidden" name="ticker" value="{{ticker}}">
+                            <input type="submit" name="changelist" value="Remove Portfolio">
                         </form>
                     </th>
                 </tr>
