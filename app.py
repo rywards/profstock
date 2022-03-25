@@ -156,10 +156,12 @@ def pullstockinfo():
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
+    
     users = Table('users', metadata_obj, autoload_with=engine)
     userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    
     # check to make sure a session is active
     if (session):
 
@@ -190,18 +192,45 @@ def portfolio():
             alcsession.execute(createportfolio)
             alcsession.commit()
 
-        # cleaning up portfolio output
-        #jsonport = json.dumps([row._asdict() for row in existsportfolio], indent=4)
-        stockdata = {}
-        for row in existsportfolio:
-            jsonport = json.dumps(row._asdict(), indent=4)
-            jsonport = json.loads(jsonport)
-            stockdata['portfolioid'] = jsonport['portfolioid']
-            stockdata['stockid'] = jsonport['stockid']
-            stockdata['buydate'] = jsonport['quantity']
-            stockdata['initvalue'] = jsonport['initvalue']
-            print(stockdata)
-        return render_template("portfolio.html", stockdata=stockdata)
+        # adding or removing portfolio items
+        if (request.method == 'POST'):
+        
+          ticker = request.form['ticker']
+          status = request.form['changeport']
+          tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
+          
+          if (status == "Remove Portfolio"):
+              portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=tickerexist[0]).delete()
+              print(portfremove)
+              print("remove")
+              alcsession.commit()
+              return redirect("/portfolio")
+          
+          if (status == "Add Portfolio"):
+            portfadd = portfolios.insert().values(portfolioid=uid,
+                                                 stockid=tickerexist[0])
+            alcsession.execute(portfadd)
+            alcsession.commit()
+            return redirect("/portfolio")
+              
+        if (request.method == 'GET'):
+          
+          # cleaning up portfolio output
+          #jsonport = json.dumps([row._asdict() for row in existsportfolio], indent=4)
+          stockdata = {}
+          data = []
+          for row in existsportfolio:
+              jsonport = json.dumps(row._asdict(), indent=4)
+              jsonport = json.loads(jsonport)
+              stockdata['portfolioid'] = jsonport['portfolioid']
+              stockdata['stockid'] = jsonport['stockid']
+              stockdata['buydate'] = jsonport['quantity']
+              stockdata['initvalue'] = jsonport['initvalue']
+              print(stockdata)
+              data.append(stockdata)
+              
+          print(data)
+          return render_template("portfolio.html", stockdata=stockdata)
     else:
         return redirect("/login")
 
@@ -236,7 +265,7 @@ def watchlist():
         
         watchlistdata = {}
         
-        # this method is used when the watchlist is being retrieved
+        # this is used when the watchlist is being retrieved
         if (request.method == 'GET'):
             ids = []
             stocknames = []
