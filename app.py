@@ -39,7 +39,7 @@ oauth.register(
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
-        redirect_uri="http://localhost:5000/callback"
+        redirect_uri=url_for("callback", _external=True)
     )
 
 @app.route("/callback", methods=["GET", "POST"])
@@ -169,7 +169,7 @@ def portfolio():
         userinfo = json.loads(pretty)
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
-        result = alcsession.query(users).filter_by(uid = uid).one()
+        result = alcsession.query(users).filter_by(uid = uid).first()
         uid = result[0]
 
         # get portfolio from sqlalchemy query
@@ -221,7 +221,7 @@ def watchlist():
         userinfo = json.loads(pretty)
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
-        result = alcsession.query(users).filter_by(uid = uid).one()
+        result = alcsession.query(users).filter_by(uid = uid).first()
         uid = result[0]
 
         existswatch = alcsession.query(watchlists).filter_by(wid = uid).first()
@@ -255,13 +255,23 @@ def watchlist():
                 except TypeError:
                     continue
 
-            return render_template("watchlist.html",stocknames=stocknames)
+            return render_template("WatchList.html",stocknames=stocknames)
         
         # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
 
             ticker = request.form['ticker']
-            tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
+            status = request.form['changelist']
+            
+            tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
+            
+            if (status == "Remove Watchlist"):
+              watchlistremove = alcsession.query(watchlists).filter_by(uid=uid, stockid=tickerexist[0]).delete()
+              print(watchlistremove)
+              print("remove")
+              alcsession.commit()
+              return redirect("/watchlist")
+            
             print(tickerexist[0])
             watchlistinsert = watchlists.insert().values(uid=uid,
                                                    wid=uid,
