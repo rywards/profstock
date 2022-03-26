@@ -73,7 +73,8 @@ def home():
 @app.route("/profile.html")
 def profile():
     if (session):
-        return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
+        #return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
+        return jsonify(session=session.get('user'), pretty=json.dumps(session.get('user')))
     else:
         return redirect("/login")
 
@@ -98,7 +99,8 @@ def users():
                                           email=email)
         alcsession.execute(statement)
         alcsession.commit()
-        return render_template("users.html", username=username)
+        #return render_template("users.html", username=username)
+        return jsonify(username)
 
 @app.route("/topusers", methods=['GET'])
 def topusers():
@@ -145,14 +147,15 @@ def pullstockinfo():
 
 
 
-    return render_template("stockinfo.html", 
-                            ticker=ticker,  
-                            close=close,
-                            openprice=openprice,
-                            high=high,
-                            low=low,
-                            volume=volume,
-                            date=date)
+    #return render_template("stockinfo.html", 
+    #                        ticker=ticker,  
+    #                        close=close,
+    #                        openprice=openprice,
+    #                       high=high,
+    #                        low=low,
+    #                        volume=volume,
+    #                        date=date)
+    return api_response
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
@@ -230,7 +233,8 @@ def portfolio():
               data.append(stockdata)
               
           print(data)
-          return render_template("portfolio.html", stockdata=stockdata)
+          #return render_template("portfolio.html", stockdata=stockdata)
+          return jsonify(stockdata)
     else:
         return redirect("/login")
 
@@ -284,7 +288,8 @@ def watchlist():
                 except TypeError:
                     continue
 
-            return render_template("WatchList.html",stocknames=stocknames)
+            #return render_template("WatchList.html",stocknames=stocknames)
+            return jsonify(stocknames)
         
         # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
@@ -308,7 +313,8 @@ def watchlist():
             alcsession.execute(watchlistinsert)
             alcsession.commit()
             
-            return render_template("WatchList.html",tickerexist=tickerexist)
+            #return render_template("WatchList.html",tickerexist=tickerexist)
+            return jsonify(tickerexist)
 
     else:
         return redirect("/login")
