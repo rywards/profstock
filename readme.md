@@ -9,7 +9,7 @@ Web app to track your stock portfolio and compare it's performance against other
 - Auth0 🔒
 - SQLAlchemy ⚗️
 ## Infrastructure
-- AWS S3 Bucket 🪣
+- AWS EC2 Instance 
 - MySQL database 🔩
 ## Languages
 - Python 🐍
