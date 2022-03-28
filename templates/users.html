@@ -5,12 +5,11 @@
 </head>
 <body>
 <!-- action is the request location on the server -->
-<p>
-    <link rel="users" href="{{ url_for('users')}}">
-    <code>
-    {{allusers}}
-</code>
-</p>
+<h1>Test javascript</h1>
+<form action="/watchlist" method="post">
+    <input type="text" name="ticker" placeholder="Enter ticker">
+    <input type="submit" value="Search">
+    </form>
 
 </body>
 </html>
