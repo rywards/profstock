@@ -74,7 +74,7 @@ def home():
 def profile():
     if (session):
         #return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
-        return jsonify(session=session.get('user'), pretty=json.dumps(session.get('user')))
+        return jsonify(session.get('user'), json.dumps(session.get('user')))
     else:
         return redirect("/login")
 
