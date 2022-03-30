@@ -374,6 +374,25 @@ def leaderboard():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     conn = engine.connect()
 
+    users = [] # Array to hold the users in the database
+    invested = [] # Array to hold total amount invested by each user
+    current_amounts = [] # Array to hold current amount user's stocks are worth
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = session.query(portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).group_by(portfolios.portfolioid
+    ).all()
+
+    # Saves the returned data in the arrays
+    for user in sqlInvested:
+        users.add(user.portfolioid)
+        invested.add(user.total_invested)
+
+    
+    # Get current stock info from api
+    # Calculate ((current prices / total invested) - 1) * 100 for each user
+    # Sort and return json to front end
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
