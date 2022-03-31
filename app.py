@@ -368,7 +368,11 @@ def stockremove():
         conn.execute(removeStock)
         conn.commit()
 
-    
+# Returns the users with highest portfolio return percentage
+@app.route("/leaderboard", methods=['POST', 'GET'])
+def leaderboard():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    conn = engine.connect()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
