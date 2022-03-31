@@ -12,6 +12,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, String, select
 from sqlalchemy.orm import Session as Alcsession
+from sqlalchemy.sql import func
 
 # initializing database connection
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
@@ -35,6 +36,21 @@ oauth.register(
     },
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
+
+# function returns current user's information in JSON format
+def session_info():
+    sessioninfo = session.get('user')
+    pretty=json.dumps(sessioninfo, indent=4)
+    userinfo = json.loads(pretty)
+    return userinfo
+
+# function
+def load_tables():
+    users = Table('users', metadata_obj, autoload_with=engine)
+    userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    return users, userstocks, portfolios, stocks
 
 @app.route("/login")
 def login():
@@ -138,23 +154,6 @@ def pullstockinfo():
     api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
     api_response = api_result.json()
 
-    close = api_response['close']
-    openprice = api_response['open']
-    high = api_response['high']
-    low = api_response['low']
-    volume = api_response['volume']
-    date = api_response['date']
-
-
-
-    #return render_template("stockinfo.html", 
-    #                        ticker=ticker,  
-    #                        close=close,
-    #                        openprice=openprice,
-    #                       high=high,
-    #                        low=low,
-    #                        volume=volume,
-    #                        date=date)
     return api_response
 
 @app.route("/portfolio", methods=['POST','GET'])
@@ -187,7 +186,7 @@ def portfolio():
             alcsession.execute(createconn)
             alcsession.commit()
 
-        # creating a root entry
+        # creating a root entry in the portfolio
         if (not existsportfolio):
             stockid=0
             createportfolio = portfolios.insert().values(portfolioid=uid,
@@ -249,9 +248,7 @@ def watchlist():
 
     if (session):
         
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
+        userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
         result = alcsession.query(users).filter_by(uid = uid).first()
@@ -319,74 +316,35 @@ def watchlist():
     else:
         return redirect("/login")
 
-@app.route("/stockadd", methods=['POST','GET'])
-def stockadd():
-    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
-    conn = engine.connect()
-
-    if (session):
-        # get user id from session info in sqlalchemy query
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
-        uid = userinfo['userinfo']['sub']
-        result = alcsession.query(users).filter_by(uid = uid).one()
-        uid = result[0]
-
-        # Stock id
-        ticker = request.form['ticker']
-        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
-        stockid = tickerexist[0]
-
-        addStock = portfolios.insert().values(portfolioid = uid, stockid = stockid)
-        conn.execute(addStock)
-        conn.commit()
-
-
-
-@app.route("/stockremove", methods=['POST','GET'])
-def stockremove():
-    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
-    conn = engine.connect()
-
-    if (session):
-        # get user id from session info in sqlalchemy query
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
-        uid = userinfo['userinfo']['sub']
-        result = alcsession.query(users).filter_by(uid = uid).one()
-        uid = result[0]
-
-        # Stock id
-        ticker = request.form['ticker']
-        tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).one()
-        stockid = tickerexist[0]
-
-        # Execute and commit query
-        removeStock = portfolios.delete().where(portfolios.c.portfolioid == portfolioid and portfolios.c.stockid == stockid)
-        conn.execute(removeStock)
-        conn.commit()
-
+# Andrew S. and Ryan Edwards
 # Returns the users with highest portfolio return percentage
 @app.route("/leaderboard", methods=['POST', 'GET'])
 def leaderboard():
-    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
-    conn = engine.connect()
 
-    users = [] # Array to hold the users in the database
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    
+
+    users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
-    ).group_by(portfolios.portfolioid
-    ).all()
+    totalinvested = alcsession.query(portfolios).group_by(portfolios.c.portfolioid).all()
+
+    
+    for portfolioid in totalinvested:
+
+    
 
     # Saves the returned data in the arrays
-    for user in sqlInvested:
-        users.add(user.portfolioid)
-        invested.add(user.total_invested)
+    for user in totalinvested:
+        users.append(user.portfolioid)
+        invested.append(user.total_invested)
+    
+    alcsession.commit()
+
+    return jsonify(users)
+
 
     
     # Get current stock info from api
