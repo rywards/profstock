@@ -103,9 +103,7 @@ def users():
     allusers = json.dumps([row._asdict() for row in statement], indent=4)
 
     if (session):
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
+        userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         username = userinfo['userinfo']['name']
         email = userinfo['userinfo']['email']
@@ -115,12 +113,8 @@ def users():
                                           email=email)
         alcsession.execute(statement)
         alcsession.commit()
-        #return render_template("users.html", username=username)
+        
         return jsonify(username)
-
-@app.route("/topusers", methods=['GET'])
-def topusers():
-    return 45
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -132,6 +126,7 @@ def pullstockinfo():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
     
+
     if not result:
 
         params = {
@@ -140,21 +135,27 @@ def pullstockinfo():
 
         api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
         api_response = api_result.json()
+        print(api_response)
         name = api_response['name']
         newstock = stocks.insert().values(ticker=ticker,
                                           name=name)
         alcsession.execute(newstock)
         alcsession.commit()
 
-    
+    # getting the most recent stock data
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
     }
 
-    api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
-    api_response = api_result.json()
+    info_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
+    name_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
+    stock_info = info_result.json()
+    stock_name = name_result.json()
 
-    return api_response
+    stock = json.dumps([stock_info, stock_name])
+    
+
+    return stock
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
@@ -167,10 +168,7 @@ def portfolio():
     # check to make sure a session is active
     if (session):
 
-        # get user id from session info in sqlalchemy query
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
+        userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
         result = alcsession.query(users).filter_by(uid = uid).first()
@@ -322,11 +320,7 @@ def watchlist():
 def leaderboard():
 
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
-<<<<<<< HEAD
-    
-=======
     users = Table('users', metadata_obj, autoload_with=engine)
->>>>>>> andrew
 
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
@@ -335,25 +329,6 @@ def leaderboard():
     usernames = [] # Holds usernames
 
     # Query to get portfolio id | sum(total invested) for each user
-<<<<<<< HEAD
-    totalinvested = alcsession.query(portfolios).group_by(portfolios.c.portfolioid).all()
-
-    
-    for portfolioid in totalinvested:
-
-    
-
-    # Saves the returned data in the arrays
-    for user in totalinvested:
-        users.append(user.portfolioid)
-        invested.append(user.total_invested)
-    
-    alcsession.commit()
-
-    return jsonify(users)
-
-
-=======
     sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
     ).join(users
     ).group_by(portfolios.portfolioid
@@ -362,12 +337,11 @@ def leaderboard():
     alcsession.commit()
 
 
-    # Saves the returned data in the arrays
+    # Saves the returned dafta in the arrays
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
->>>>>>> andrew
     
 
     # Get current stock info from api
