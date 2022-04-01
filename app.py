@@ -322,13 +322,20 @@ def watchlist():
 def leaderboard():
 
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+<<<<<<< HEAD
     
+=======
+    users = Table('users', metadata_obj, autoload_with=engine)
+>>>>>>> andrew
 
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
+    percentages = [] # Holds percentage for each user up/down
+    usernames = [] # Holds usernames
 
     # Query to get portfolio id | sum(total invested) for each user
+<<<<<<< HEAD
     totalinvested = alcsession.query(portfolios).group_by(portfolios.c.portfolioid).all()
 
     
@@ -346,10 +353,52 @@ def leaderboard():
     return jsonify(users)
 
 
+=======
+    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users
+    ).group_by(portfolios.portfolioid
+    ).all()
     
+    alcsession.commit()
+
+
+    # Saves the returned data in the arrays
+    for user in sqlInvested:
+        users.append(user.portfolioid)
+        usernames.append(user.username)
+        invested.append(user.total_invested)
+>>>>>>> andrew
+    
+
     # Get current stock info from api
+    for i in range(0, len(users) - 1):
+            total = 0
+            for user in sqlInvested:
+                if user.portfolioid == users(i):
+                    api_response = pullstockinfo(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+
+                    init_value = 0
+                    init_value = user.quantity * api_response.last
+
+                    total += init_value
+                else:
+                    current_amounts[i] = total
+
+
+
     # Calculate ((current prices / total invested) - 1) * 100 for each user
+    for j in range(0, len(users) - 1):
+        percentages[j] = ((current_amounts[j] / invested[j]) - 1) * 100
+
     # Sort and return json to front end
+    # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
+    # This helped me sort 2 lists the same way
+    zippedreturn = zip(percentages, usernames)
+    sortedreturn = sorted(zippedreturn, reverse=True)
+
+    # Returns json, in order, from largest percentage to smallest
+    # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
+    return jsonify(sortedreturn)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
