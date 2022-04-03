@@ -376,6 +376,104 @@ def leaderboard():
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
     return jsonify(sortedreturn)
 
+
+@app.route("/sharing", methods=['POST', 'GET'])
+def share():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    users = Table('users', metadata_obj, autoload_with=engine)
+
+    userinfo = session_info()
+    uid = userinfo['userinfo']['sub']
+
+    users = [] # Array to hold the users from the database
+    invested = [] # Array to hold total amount invested by each user
+    current_amounts = [] # Array to hold current amount user's stocks are worth
+    percentages = [] # Holds percentage for each user up/down
+    usernames = [] # Holds usernames
+    userStocks = [] # Holds the current user's stocks
+    currentValues = [] # Holds init values for each user stock
+    differences = [] # Holds difference in init values for each stock
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users
+    ).group_by(portfolios.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
+
+    # Saves the returned data in the arrays
+    for user in sqlInvested:
+        users.append(user.portfolioid)
+        usernames.append(user.username)
+        invested.append(user.total_invested)
+    
+
+    # Get current stock info from api
+    for i in range(0, len(users) - 1):
+            total = 0
+            for user in sqlInvested:
+                if user.portfolioid == users(i):
+                    api_response = pullstockinfo(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+
+                    init_value = 0
+                    init_value = user.quantity * api_response.last
+
+                    total += init_value
+                else:
+                    current_amounts[i] = total
+
+
+
+    # Calculate ((current prices / total invested) - 1) * 100 for each user
+    for j in range(0, len(users) - 1):
+        percentages[j] = ((current_amounts[j] / invested[j]) - 1) * 100
+
+    # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
+    percentages_sorted, users_sorted = map(list, zip(*sorted(zip(percentages, users), reverse=True)))
+
+    # Gets user's current position on the leaderboard
+    for i in users_sorted:
+        if users_sorted(i) == uid:
+            leaderboardPos = i + 1
+
+    
+    # ----------------------------------------------------------------------
+    # This part is for finding best performing stock
+    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users
+    ).group_by(portfolios.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
+    # Get all of the user's stocks
+    for u in sqlInvested:
+        if u.portfolioid == uid:
+            userStocks.append(u)
+
+    # Get current init values for each stock
+    for stock in userStocks:
+        api_response = pullstockinfo(stock.ticker)  # Call api
+        init_value = 0
+        init_value = user.quantity * api_response.last
+        currentValues.append(init_value)
+
+
+    # Find the largest difference between init values
+    # We would then return the best performing stock, and how much percentage it is up
+    bestStock = sqlInvested[i]
+    for i in sqlInvested:
+        differences[i] = currentValues[i].init_value - sqlInvested[i].init_value
+
+        if differences[i] > bestStock:
+            bestStock = sqlInvested[i]
+            percentage = differences[i]
+
+
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
