@@ -6,7 +6,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Style the header */
 header {
   background-color: #666;
   padding: 1px;
@@ -116,3 +115,55 @@ th {
 .tickerinfo td {
     text-align: center;
 }
+
+
+.list-item{
+  padding: 10px;
+  border: 2px solid black;
+}
+
+#ProfileName{
+  font-size: larger;
+}
+
+#ProfileSubInfo{
+  font-size:medium;
+}
+
+.pfph1 {
+  background-color: darkred;
+  padding: 1px;
+  text-align:center;
+  color: white;
+  float: left;
+  padding: 5px;
+  height: 100%;
+  
+}
+
+#pfpbutton{
+  float: right;
+  padding: 10px;
+  
+}
+
+#descriptionlabel{
+  float: left;
+  padding: 20px;
+
+
+}
+
+
+
+#profileText {
+  padding: 10px;
+  text-align: center;
+  float: center;
+  
+}
+
+#pfpdisplayinfo{
+  list-style-type: none;
+}
+

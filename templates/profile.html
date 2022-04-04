@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>  
+    <head>  
+        <title> Profile Page </title>
+        <!--when we deploy replace development.js with production.min.js-->    
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>  
+    <body>
+        <h1 class= "pfph1" id="root"></h1>
+        <div id="info"></div>
+        <script type="text/babel">
+            class ProfileInfo extends React.Component {
+                render(){
+                    return(
+                            <ul id="pfpdisplayinfo">
+                                <li id="ProfileName">{{session.userinfo.name}}</li>
+                                
+                                <li id="ProfileSubInfo">{{session.userinfo.email}}</li>
+                                
+                            </ul>
+                    )
+                }
+            }
+
+            class ProfileSubInfo extends React.Component{
+                render(){
+                    return(
+                        <div id='profileText'>
+                            <h2> Profile Info to Edit: </h2>
+                            <form action="/editUser" method='post'>
+                                <hr></hr>
+                                <br/>
+                                <br/>
+                                <label for="firstname">First name:</label>
+                                <input type="text" name="firstname"></input>
+                                <label for="lastname">Last name:</label>
+                                <input type="text" name="lastname"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" name="email"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="description" id="descriptionlabel">Description:</label><br/><br/>
+                                <textarea rows='5' cols='60' name='description'></textarea>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="number" id="number">Phone number:</label><br/>
+                                <input type="number" id="number" name="number" min="100000000"></input>
+                                <br/><br/>
+                                <hr></hr>
+                                <label for="location" >Location:</label><br/>
+                                <input type="text" name="location"></input>
+                                <br/><br/>
+                                <input type="submit" id="pfpbutton" name="button"></input>
+                            </form>
+                        </div>
+                    )
+                }
+            }
+
+            ReactDOM.render(<ProfileInfo />, document.getElementById('root'))
+            ReactDOM.render(<ProfileSubInfo />, document.getElementById('info'))
+        </script>     
+    </body>  
+</html> 

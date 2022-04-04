@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <Title>Portfolio</Title>
+        <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+    <header>
+        <h1>ProfStock</h1>
+    </header>
+        <h1>
+            <ul>
+                <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
+              <li><a href="portfolio">Portfolio</a></li>
+              <li><a href="watchlist">Watchlist</a></li>
+              <li style="float:right">
+                <!-- send post request with stock ticker-->
+                <form action="/stockinfo" method="post">
+                <input type="text" name="ticker" placeholder="Enter ticker">
+                <input type="submit" value="Search">
+                </form>
+              </li>
+            {% if session %}
+            <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
+            {% else %}
+            <li style="float:right"><a href="{{url_for('login')}}">Login</a></li>
+            {% endif %}
+            </ul>
+          </h1>
+          <label for="stocks">Stocks</label>
+            <select name="stocks">
+                {%for data in stockdata%}
+                <option value="{{data}}">{{data}}</option>
+                {%endfor%}
+            </select>
+
+            <div class="tickerinfo">
+
+              <table>
+                  <thead>
+                      <tr>
+                          <th>{{symbol}}</th>
+                          <th>
+                              <form action="/addstock" method="post">
+                                  <input type="hidden" name="ticker" value="{{symbol}}">
+                              </form>
+                          </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      
+                      <tr>
+                        <th scope="row">quantity</th>
+                        <td>{{quantity}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Portfolio info</th>
+                        <td>{{stockdata}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">buy date</th>
+                        <td>{{buydate}}</td>
+                    </tr>
+                  </tbody>
+              </table>
+            <template>
+                <option value=""></option>
+            </template>
+    </body>
+</html>

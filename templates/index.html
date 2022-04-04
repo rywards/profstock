@@ -49,6 +49,11 @@
               </form>
             </li>
             <li style={ {float:"right"}}><a href="SignUpPage.html">Login</a></li>
+            {% if session %}
+            <li style={ {float:"right"}}><a href="{{url_for('logout')}}">Logout</a></li>
+            {% else %}
+            <li style={ {float:"right"}}><a href="{{url_for('login')}}">Login</a></li>
+            {% endif %}
           </ul>
         </h2>);
     }
@@ -152,7 +157,7 @@
               <th>Name</th>
               <th>Market Cap</th>
               <th>Price</th>
-              <th>Ticket</th>
+              <th>ticket</th>
           </tr>
         </thead>
         <tbody>
