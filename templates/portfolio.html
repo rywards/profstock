@@ -5,78 +5,120 @@
         <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <h1>
+        <div id="root"></div>
+<div id="subInfo"></div>
+    <script type="text/babel">
+        class SubLinks extends React.Component {
+        render() {
+        return (
+            <h2>
             <ul>
-                <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
-              <li><a href="portfolio">Portfolio</a></li>
-              <li><a href="watchlist">Watchlist</a></li>
-              <li style="float:right"><a href="SignUpPage">Login</a></li>
-              <li style="float:right">
-                <!-- send post request with stock ticker-->
-                <form action="/stockinfo.html" method="post">
-                <input type="text" name="ticker" placeholder="Enter ticker">
-                <input type="submit" value="Search">
+                <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="portfolio">Portfolio</a></li>
+                <li><a href="watchlist">Watchlist</a></li>
+                <li style={ {float:"right"}}>
+                <form action="/stockinfo" method="post">
+                    <input type="text" name="ticker" placeholder="Enter ticker"/>
+                    <input type="submit" value="Search"/>
                 </form>
-              </li>
+                </li>
+                {% if session %}
+                <li style={ {float:"right"}}><a href="{{url_for('logout')}}">Logout</a></li>
+                {% else %}
+                <li style={ {float:"right"}}><a href="{{url_for('login')}}">Login</a></li>
+                {% endif %}
             </ul>
-          </h1>
-          <label for="stocks">Stocks</label>
-            <select name="stocks">
-                <option value="MSFT">microsoft</option>
-                <option value="AAPL">apple</option>
+            </h2>);
+        }
+    }
+    function listOfStocks() {
+        const items = [
+        {
+        id: 1,
+        name: 'APPLE INC',
+        marketCap:'$2.599 T',
+        price: '$159.30',
+        ticket: 'AAPL'
+        },
+        {
+        id: 2,
+        name: 'Saudi Aramco',
+        marketCap:'$2.386 T',
+        price: '$11.94',
+        ticket: '2222.SR'
+        },
+        {
+        id: 3,
+        name: 'MICROSOFT CORP.',
+        marketCap:'$2.090 T',
+        price: '$278.91',
+        ticket: 'MSFT'
+        },
+        {
+        id: 4,
+        name: 'Alphabet (Google)',
+        marketCap:'$1.670 T',
+        price: '$2,529',
+        ticket: 'GOOG'
+        },
+        {
+        id: 5,
+        name: 'Amazon',
+        marketCap:'$1.398 T',
+        price: '$2,749',
+        ticket: 'AMZN'
+        },
+        {
+        id: 6,
+        name: 'Tesla',
+        marketCap:'$831.54 B',
+        price: '$804.58',
+        ticket: 'TSLA'
+        },
+        {
+        id: 7,
+        name: 'Berkshire Hathaway',
+        marketCap:'$715.71 B',
+        price: '$484,527',
+        ticket: 'BRK-A'
+        },
+        {
+        id: 8,
+        name: 'Meta (Facebook)',
+        marketCap:'$535.97 B',
+        price: '$187.47',
+        ticket: 'FB'
+        },
+        {
+        id: 9,
+        name: 'NVIDIA',
+        marketCap:'$532.09 B',
+        price: '$213.52',
+        ticket: 'NVDA'
+        },
+        {
+        id: 10,
+        name: 'TSMC',
+        marketCap:'$519.23 B',
+        price: '$99.29',
+        ticket: 'TSM'
+        }]
 
-            </select>
-
-            <div class="tickerinfo">
-
-              <table>
-                  <thead>
-                      <tr>
-                          <th>{{symbol}}</th>
-                          <th>
-                              <form action="/addstock" method="post">
-                                  <input type="hidden" name="ticker" value="{{symbol}}">
-                              </form>
-                          </th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
-                          <th scope="row">Date of Information</th>
-                          <td>{{date}}</td>
-                      </tr>
-                      <tr>
-                          <th scope="row">Close Price</th>
-                          <td>{{close}}</td>
-                      </tr>
-                      <tr>
-                          <th scope="row">Open Price</th>
-                          <td>{{openprice}}</td>
-                      </tr>
-                      <tr>
-                          <th scope="row">Day High</th>
-                          <td>{{high}}</td>
-                      </tr>
-                      <tr>
-                          <th scope="row">Day Low</th>
-                          <td>{{low}}</td>
-                      </tr>
-                      <tr>
-                          <th scope="row">Daily Volume</th>
-                          <td>{{volume}}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">quantity</th>
-                        <td>{{quantity}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">buy date</th>
-                        <td>{{buydate}}</td>
-                    </tr>
-                  </tbody>
-              </table>
-            <template>
-                <option value=""></option>
-            </template>
+    const options = [];
+    for (let item of items) {
+       row = (
+        <option value={item.ticket}>{item.name}</option>
+      );
+      itemRows.push(row);
+    }
+    return (
+        <select id="">
+            {options}
+        </select>
+    )
+    }
+    ReactDOM.render(<SubLinks />, document.getElementById('root'))
+    ReactDOM.render(<SubInfo />, document.getElementById('subInfo'))
+    </script>
     </body>
 </html>
