@@ -6,12 +6,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Style the header */
 header {
   background-color: #666;
-  padding: 5px;
+  padding: 1px;
   text-align: center;
-  font-size: 35px;
+  font-size: 30px;
   color: white;
 }
 
@@ -19,16 +18,31 @@ table.home1, th, td {
   border: 1px solid;
 }
 
-table.home1 {
-  width: 80%;
+#homeContainer {
+  width: 100%;
+  background-color: lightblue;
+  margin: auto;
 }
 
+#Top10StockTable {
+  width: 60%;
+  float: left;
+}
 
+#TopUsersTable {
+  width: 40%;
+  float: left;
+}
+#clear {
+  clear: both;
+}
 
 table.home2 {
-  width: 50%;
+  width: 90%;
 }
-
+.home2 td,th {
+    border: 1px solid rgb(8, 7, 7);
+}
 /* Style the footer */
 footer {
   background-color: #777;
@@ -100,5 +114,56 @@ th {
 
 .tickerinfo td {
     text-align: center;
+}
+
+
+.list-item{
+  padding: 10px;
+  border: 2px solid black;
+}
+
+#ProfileName{
+  font-size: larger;
+}
+
+#ProfileSubInfo{
+  font-size:medium;
+}
+
+.pfph1 {
+  background-color: darkred;
+  padding: 1px;
+  text-align:center;
+  color: white;
+  float: left;
+  padding: 5px;
+  height: 100%;
+  
+}
+
+#pfpbutton{
+  float: right;
+  padding: 10px;
+  
+}
+
+#descriptionlabel{
+  float: left;
+  padding: 20px;
+
+
+}
+
+
+
+#profileText {
+  padding: 10px;
+  text-align: center;
+  float: center;
+  
+}
+
+#pfpdisplayinfo{
+  list-style-type: none;
 }
 
