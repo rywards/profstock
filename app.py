@@ -52,6 +52,36 @@ def load_tables():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     return users, userstocks, portfolios, stocks
 
+# function for calling api
+def stockAPI(ticker):
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    result = alcsession.query(stocks).filter_by(ticker = ticker).first()
+    
+    if not result:
+
+        params = {
+            'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+        }
+
+        api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
+        api_response = api_result.json()
+        name = api_response['name']
+        newstock = stocks.insert().values(ticker=ticker,
+                                          name=name)
+        alcsession.execute(newstock)
+        alcsession.commit()
+
+    
+    params = {
+    'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+    }
+
+    api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
+    api_response = api_result.json()
+
+    return api_response
+
+
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
@@ -351,7 +381,7 @@ def leaderboard():
             total = 0
             for user in sqlInvested:
                 if user.portfolioid == users(i):
-                    api_response = pullstockinfo(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+                    api_response = stockAPI(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
 
                     init_value = 0
                     init_value = user.quantity * api_response.last
@@ -415,7 +445,7 @@ def share():
             total = 0
             for user in sqlInvested:
                 if user.portfolioid == users(i):
-                    api_response = pullstockinfo(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+                    api_response = stockAPI(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
 
                     init_value = 0
                     init_value = user.quantity * api_response.last
@@ -434,9 +464,11 @@ def share():
     percentages_sorted, users_sorted = map(list, zip(*sorted(zip(percentages, users), reverse=True)))
 
     # Gets user's current position on the leaderboard
+    # Gets user's total portfolio return
     for i in users_sorted:
         if users_sorted(i) == uid:
             leaderboardPos = i + 1
+            totalPortfolioReturn = percentages_sorted[i]
 
     
     # ----------------------------------------------------------------------
@@ -455,7 +487,7 @@ def share():
 
     # Get current init values for each stock
     for stock in userStocks:
-        api_response = pullstockinfo(stock.ticker)  # Call api
+        api_response = stockAPI(stock.ticker)  # Call api
         init_value = 0
         init_value = user.quantity * api_response.last
         currentValues.append(init_value)
@@ -472,6 +504,12 @@ def share():
             percentage = differences[i]
 
 
+    # Returns the user's total portfolio return, leaderboard position, and the user's best performing
+    # stock, and how much that stock is up (percentage)
+    # Still need to add in profile image
+    returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
+                        'bestStock': bestStock, 'bestStockPercentage': percentage}
+    return returnValuesJson
 
 
 if __name__ == "__main__":
