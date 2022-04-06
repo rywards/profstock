@@ -1,19 +1,27 @@
-import logo from './logo.svg';
 import './App.css';
-
-/*
-Resources for getting authentication working
-https://auth0.com/blog/complete-guide-to-react-user-authentication/
-https://www.youtube.com/watch?v=MqczHS3Z2bc
-https://www.youtube.com/watch?v=aRBgA8N0ioM&t=373s
-*/
+//import '../../static/style.css';
+//<PersonList/>
 import PersonList from './components/PersonList.js';
+import SubInfo from './components/StockList.js';
+import SubLinks from './components/SubLinks.js';
 
 function App() {
   return (
-    <div ClassName="App">
-      <PersonList/>
+    <div ClassName="StockHome">
+      
+      <header>
+      <h1>ProfStock</h1>
+      </header>
+      
+      <SubLinks/>
+      <SubInfo/>
+      
+      <footer>
+      <p></p>
+      </footer>
+      <p><PersonList/></p>
     </div>
+    
   )
 }
 
