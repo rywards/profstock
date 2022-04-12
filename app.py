@@ -461,6 +461,7 @@ def share():
         percentages[j] = ((current_amounts[j] / invested[j]) - 1) * 100
 
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
+    # Sort both lists in the same way
     percentages_sorted, users_sorted = map(list, zip(*sorted(zip(percentages, users), reverse=True)))
 
     # Gets user's current position on the leaderboard
