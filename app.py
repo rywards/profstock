@@ -353,6 +353,8 @@ def leaderboard():
 
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+
 
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
@@ -361,8 +363,9 @@ def leaderboard():
     usernames = [] # Holds usernames
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    sqlInvested = session.query(users.username, portfolios.quantity, stocks.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
     ).join(users
+    ).join(stocks
     ).group_by(portfolios.portfolioid
     ).all()
     
@@ -411,6 +414,7 @@ def leaderboard():
 def share():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
     userinfo = session_info()
     uid = userinfo['userinfo']['sub']
@@ -425,8 +429,9 @@ def share():
     differences = [] # Holds difference in init values for each stock
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    sqlInvested = session.query(users.username, portfolios.quantity, stocks.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
     ).join(users
+    ).join(stocks
     ).group_by(portfolios.portfolioid
     ).all()
     
