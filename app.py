@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -359,7 +359,7 @@ def leaderboard():
 
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(portfolios, users, stocks, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    sqlInvested = alcsession.query(portfolios, users, stocks, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).join(stocks, stocks.c.stockid == users.c.uid
     ).group_by(portfolios.portfolioid
@@ -483,7 +483,7 @@ def share():
     
     # ----------------------------------------------------------------------
     # This part is for finding best performing stock
-    sqlInvested = session.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    sqlInvested = alcsession.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
     ).join(users
     ).group_by(portfolios.portfolioid
     ).all()
