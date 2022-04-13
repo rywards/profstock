@@ -7,7 +7,7 @@ function App() {
     return (
         <div>
             <header>
-                <h1>ProfStock</h1>
+                <h1>FUCK</h1>
             </header>
             <StockSearch/>
             <AddStock/>
