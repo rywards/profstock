@@ -6,7 +6,7 @@ import './style.css';
 class Stock extends React.Component {
     constructor(props) {
       super(props);
-      this.state = {value: 'MSFT'};
+      this.state = {value: ''};
   
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
@@ -15,13 +15,18 @@ class Stock extends React.Component {
     handleChange(event) {
       this.setState({value: event.target.value});
     }
-  
+    handleClick = (event) => {
+      this.setState({value: event.target.value});
+      event.preventDefault();
+    }
     handleSubmit(event) {
       alert('Your stock is: ' + this.state.value);
       event.preventDefault();
     }
   
- 
+    sayHello() {
+  alert('You clicked me!');
+}
 
     createlist(){
       const items = [
@@ -31,7 +36,7 @@ class Stock extends React.Component {
         marketCap:'$2.599 T',
         price: '$159.30',
         ticket: 'AAPL',
-        quantity: '26'
+        quantity: '24'
         },
         {
         id: 2,
@@ -104,12 +109,20 @@ class Stock extends React.Component {
         price: '$99.29',
         ticket: 'TSM',
         quantity: '4'
-        }]
+        },
+        {
+          id: 11,
+          name: 'TSMC',
+          marketCap:'$519.23 B',
+          price: '$99.29',
+          ticket: 'TSM',
+          quantity: '4'
+          }]
         const list = items.map((item) => 
-        <tr>
+        <tr key={item.id}>
           <td>{item.name}</td>
           <td>{item.quantity}</td>
-          <td><button >remove</button></td>
+          <button value={item.ticket} onClick={this.handleClick}>Remove</button>
         </tr>
       );
       return (
@@ -120,10 +133,10 @@ class Stock extends React.Component {
 
     
     render() {
-     var i = this.createlist();
+      console.log('this is:', this.state.value);
       return (
         <>
-  <form onSubmit={this.handleSubmit}>
+  
 
             <table className = "home2" align="center">
           <thead>
@@ -134,11 +147,11 @@ class Stock extends React.Component {
             </tr>
           </thead>
 
-            {i}
+            {this.createlist()}
 
         </table>
             <input type="submit" value="Submit" />
-          </form></>
+          </>
       );
     }
   }
