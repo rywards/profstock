@@ -522,6 +522,27 @@ def share():
     return returnValuesJson
 
 
+@app.route("/test", methods=['POST', 'GET'])
+def test():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    users = Table('users', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+
+    userinfo = session_info()
+    uid = userinfo['userinfo']['sub']
+
+
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = session.query(portfolios, users, stocks, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).join(stocks, stocks.c.stockid == users.c.uid
+    ).group_by(portfolios.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
