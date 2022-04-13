@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -356,13 +356,10 @@ def leaderboard():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
 
-
-
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = alcsession.query(portfolios, users, stocks, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
-    ).join(stocks, stocks.c.stockid == users.c.uid
-    ).group_by(portfolios.portfolioid
+    ).group_by(portfolios.c.portfolioid
     ).all()
     
     alcsession.commit()
@@ -373,8 +370,8 @@ def leaderboard():
     current_amounts = [] # Array to hold current amount user's stocks are worth
     percentages = [] # Holds percentage for each user up/down
     usernames = [] # Holds usernames
-
-
+    tickers = [] # Holds a list of tickers for each user
+    
     # Saves the returned data in the arrays
     for user in sqlInvested:
         users.append(user.portfolioid)
@@ -382,25 +379,30 @@ def leaderboard():
         invested.append(user.total_invested)
     
 
-    # Get current stock info from api
+    getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
+    ).join(stocks, stocks.c.stockid == portfolios.c.stockid
+    ).all()
+    
+    alcsession.commit()
+
+    # Get current amounts from api
     for i in range(0, len(users) - 1):
-            total = 0
-            for user in sqlInvested:
-                if user.portfolioid == users(i):
-                    api_response = stockAPI(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+        total = 0
+        for t in getTickers:
+            if t.portfolioid == users[i]:
+                api_reponse = stockAPI(t.ticker)
 
-                    init_value = 0
-                    init_value = user.quantity * api_response.last
+                print(api_reponse)
+                init_value = 0
+                init_value = t.quantity * api_reponse.get('open')
 
-                    total += init_value
-                else:
-                    current_amounts[i] = total
+                total += init_value
 
-
+        current_amounts.append(total)
 
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users) - 1):
-        percentages[j] = ((current_amounts[j] / invested[j]) - 1) * 100
+        percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
 
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
@@ -411,6 +413,7 @@ def leaderboard():
     # Returns json, in order, from largest percentage to smallest
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
     return jsonify(sortedreturn)
+    
 
 
 @app.route("/sharing", methods=['POST', 'GET'])
@@ -425,10 +428,10 @@ def share():
 
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(portfolios, users, stocks, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    sqlInvested = alcsession.query(portfolios, users, stocks, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).join(stocks, stocks.c.stockid == users.c.uid
-    ).group_by(portfolios.portfolioid
+    ).group_by(portfolios.c.portfolioid
     ).all()
     
     alcsession.commit()
