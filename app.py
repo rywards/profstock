@@ -356,20 +356,23 @@ def leaderboard():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
 
+
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = session.query(portfolios, users, stocks, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).join(stocks, stocks.c.stockid == users.c.uid
+    ).group_by(portfolios.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
+
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
     percentages = [] # Holds percentage for each user up/down
     usernames = [] # Holds usernames
-
-    # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(users.username, portfolios.quantity, stocks.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
-    ).join(users
-    ).join(stocks
-    ).group_by(portfolios.portfolioid
-    ).all()
-    
-    alcsession.commit()
 
 
     # Saves the returned data in the arrays
@@ -419,6 +422,17 @@ def share():
     userinfo = session_info()
     uid = userinfo['userinfo']['sub']
 
+
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = session.query(portfolios, users, stocks, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).join(stocks, stocks.c.stockid == users.c.uid
+    ).group_by(portfolios.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
@@ -427,16 +441,6 @@ def share():
     userStocks = [] # Holds the current user's stocks
     currentValues = [] # Holds init values for each user stock
     differences = [] # Holds difference in init values for each stock
-
-    # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = session.query(users.username, portfolios.quantity, stocks.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
-    ).join(users
-    ).join(stocks
-    ).group_by(portfolios.portfolioid
-    ).all()
-    
-    alcsession.commit()
-
 
     # Saves the returned data in the arrays
     for user in sqlInvested:
