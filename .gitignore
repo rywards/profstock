@@ -1,0 +1,7 @@
+__pycache__
+venv/
+winenv/
+*.sql
+venv/
+.DS_Store
+**/.DS_Store
