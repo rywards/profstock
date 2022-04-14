@@ -458,6 +458,7 @@ def share():
     userStocks = [] # Holds the current user's stocks
     currentValues = [] # Holds init values for each user stock
     differences = [] # Holds difference in init values for each stock
+    previousValues = [] # Holds previous values for each stock
 
     # Saves the returned data in the arrays
     for user in sqlInvested:
@@ -506,7 +507,7 @@ def share():
     # ----------------------------------------------------------------------
     # This part is for finding best performing stock
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name, portfolios.c.initvalue
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
     ).all()
     
@@ -517,6 +518,7 @@ def share():
     for stock in sqlInvested:
         if stock.portfolioid == uid: 
             userStocks.append(stock.name)
+            previousValues.append(stock.quantity * stock.initvalue)
             api_response = stockAPI(stock.ticker)  # Call api
             init_value = 0
             init_value = stock.quantity * api_response.get('open')
@@ -527,7 +529,7 @@ def share():
     # We would then return the best performing stock, and how much percentage it is up
     percentage = 0
     for i in range(0, len(currentValues)):
-        differences.append(currentValues[i] - sqlInvested[i])
+        differences.append(float(currentValues[i]) - float(previousValues[i]))
 
         if differences[i] > percentage:
             bestStock = userStocks[i]
@@ -539,7 +541,6 @@ def share():
     returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
                         'bestStock': bestStock, 'bestStockPercentage': percentage}
     return returnValuesJson
-
 
 
 if __name__ == "__main__":
