@@ -192,7 +192,6 @@ def pullstockinfo():
     stock = json.dumps([stock_info, stock_name])
 
     return stock
-    return render_template("stockinfo.html")
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
@@ -276,8 +275,8 @@ def portfolio():
               data.append(stockdata)
 
           print(data)
-          return render_template("portfolio.html")
-          #return jsonify(stockdata)
+          #return render_template("portfolio.html")
+          return jsonify(stockdata)
     else:
         return redirect("/login")
 
