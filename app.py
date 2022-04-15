@@ -44,19 +44,26 @@ def session_info():
     userinfo = json.loads(pretty)
     return userinfo
 
-# function
-def load_tables():
-    users = Table('users', metadata_obj, autoload_with=engine)
-    userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
-    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
-    stocks = Table('stocks', metadata_obj, autoload_with=engine)
-    return users, userstocks, portfolios, stocks
+# gets total value of stock
+def stock_init_val(ticker, amount, buydate):
+
+    # getting the most recent stock data
+    params = {
+    'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+    }
+
+    api_buydate = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/' + buydate, params)
+    buydate_info = api_buydate.json()
+
+    buydate_value = buydate_info['close'] * quantity
+
+    return buydate_value
 
 # function for calling api
 def stockAPI(ticker):
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
-    
+
     if not result:
 
         params = {
@@ -71,7 +78,7 @@ def stockAPI(ticker):
         alcsession.execute(newstock)
         alcsession.commit()
 
-    
+
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
     }
@@ -185,6 +192,7 @@ def pullstockinfo():
     stock = json.dumps([stock_info, stock_name])
 
     return stock
+    return render_template("stockinfo.html")
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
@@ -236,8 +244,17 @@ def portfolio():
               return redirect("/portfolio")
 
           if (status == "Add Portfolio"):
+
+            # buydate must be strictly in Y-m-d format.
+            # ex. 2015-12-25 (christmas 2015)
+            buydate = request.form['buydate']
+            quantity = int(request.form['quantity'])
+            initvalue = stock_init_val(ticker, quantity, buydate)
             portfadd = portfolios.insert().values(portfolioid=uid,
-                                                 stockid=tickerexist[0])
+                                                 stockid=tickerexist[0],
+                                                 buydate=buydate,
+                                                 quantity=quantity,
+                                                 initvalue=initvalue)
             alcsession.execute(portfadd)
             alcsession.commit()
             return redirect("/portfolio")
@@ -259,8 +276,8 @@ def portfolio():
               data.append(stockdata)
 
           print(data)
-          #return render_template("portfolio.html", stockdata=stockdata)
-          return jsonify(stockdata)
+          return render_template("portfolio.html")
+          #return jsonify(stockdata)
     else:
         return redirect("/login")
 
@@ -354,33 +371,24 @@ def leaderboard():
 
 
     # Query to get portfolio id | sum(total invested) for each user
-<<<<<<< HEAD
-    sqlInvested = alcsession.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
-    ).join(users
-    ).group_by(portfolios.portfolioid
-=======
+
     sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).group_by(portfolios.c.portfolioid
->>>>>>> andrew
     ).all()
 
     alcsession.commit()
 
 
-<<<<<<< HEAD
-    # Saves the returned dafta in the arrays
-=======
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
     percentages = [] # Holds percentage for each user up/down
     usernames = [] # Holds usernames
     tickers = [] # Holds a list of tickers for each user
-    indecies = [] # Indexs for return 
-    
+    indecies = [] # Indexs for return
+
     # Saves the returned data in the arrays
->>>>>>> andrew
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
@@ -390,7 +398,7 @@ def leaderboard():
     getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
     ).all()
-    
+
     alcsession.commit()
 
     # Get current amounts from api
@@ -425,7 +433,7 @@ def leaderboard():
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
     #return jsonify(sortedreturn)
     return jsonify(sortedreturn)
-    
+
 
 
 @app.route("/sharing", methods=['POST', 'GET'])
@@ -452,7 +460,7 @@ def share():
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).group_by(portfolios.c.portfolioid
     ).all()
-    
+
     alcsession.commit()
 
 
@@ -472,11 +480,11 @@ def share():
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
-    
+
     getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
     ).all()
-    
+
     alcsession.commit()
 
     # Get current amounts from api
@@ -506,24 +514,24 @@ def share():
     # Gets user's current position on the leaderboard
     # Gets user's total portfolio return
     for i in range(0, len(users_sorted)):
-        if users_sorted[i] == uid: 
+        if users_sorted[i] == uid:
             leaderboardPos = i + 1
             totalPortfolioReturn = percentages_sorted[i]
 
-    
+
     # ----------------------------------------------------------------------
     # This part is for finding best performing stock
     # Query to get portfolio id | sum(total invested) for each user
     sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name, portfolios.c.initvalue
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
     ).all()
-    
+
     alcsession.commit()
 
 
     # Get current init values for each stock
     for stock in sqlInvested:
-        if stock.portfolioid == uid: 
+        if stock.portfolioid == uid:
             userStocks.append(stock.name)
             previousValues.append(stock.quantity * stock.initvalue)
             api_response = stockAPI(stock.ticker)  # Call api
@@ -545,7 +553,7 @@ def share():
     # Returns the user's total portfolio return, leaderboard position, and the user's best performing
     # stock, and how much that stock is up (percentage)
     # Still need to add in profile image
-    returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
+    returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos,
                         'bestStock': bestStock, 'bestStockPercentage': percentage}
     return returnValuesJson
 
