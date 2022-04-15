@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine('mysql+mysqldb://root:Warlord2000%4029!@localhost/profstock', echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
