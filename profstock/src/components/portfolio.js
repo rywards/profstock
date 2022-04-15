@@ -1,9 +1,11 @@
 import React from 'react';
-
+import axios from 'axios';
 
 
 
 class Stock extends React.Component {
+  stocks = fetch('http://localhost:5000/portfolio')
+
   items = [
     {
       id: 1,
@@ -142,7 +144,7 @@ class Stock extends React.Component {
 
 
   render() {
-
+    
     return (
       <>
 
