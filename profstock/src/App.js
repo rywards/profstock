@@ -6,6 +6,14 @@ import SubInfo from './components/StockList.js';
 import SubLinks from './components/SubLinks.js';
 
 function App() {
+  let users = fetch('http://localhost:5000/users');
+  ///*
+  return window.print(users);
+    //console.log("users are " + users.uid)
+  
+  //*/
+ 
+  /*
   return (
     <div ClassName="StockHome">
       
@@ -19,10 +27,10 @@ function App() {
       <footer>
       <p></p>
       </footer>
-      <p><PersonList/></p>
     </div>
     
   )
+  /*/
 }
 
 export default App;
