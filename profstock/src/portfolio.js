@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './style.css';
+import './App.css';
 
 
 class Stock extends React.Component {
@@ -19,7 +19,7 @@ class Stock extends React.Component {
       marketCap:'$2.386 T',
       price: '$11.94',
       ticket: '2222.SR',
-      quantity: '25'
+      quantity: '65'
       },
       {
       id: 3,
@@ -96,9 +96,11 @@ class Stock extends React.Component {
     handleChange(event) {
       this.setState({value: event.target.value});
     }
+
     handleClick = (event) => {
       
       this.setState({value: event.target.value});
+      
       this.removeStock(this.state.value);
       event.preventDefault();
     }
@@ -111,7 +113,9 @@ class Stock extends React.Component {
      var list = this.items;
       console.log(ticket)
       for(let i = 0; i < list.length; i++) {
+        
         if(list[i].ticket === ticket) {
+          //alert('match found');
           list[i].quantity = 'i';
         }
       }
@@ -141,7 +145,9 @@ class Stock extends React.Component {
         
       return (
         <>
-  
+        <div id="homeContainer">
+        <div id="Top10StockTable">
+          <div class="tickerinfo">
 
             <table className = "home2" align="center">
           <thead>
@@ -154,7 +160,10 @@ class Stock extends React.Component {
             {this.createlist()}
 
         </table>
-            <input type="submit" value="Submit" />
+      
+            </div>
+            </div>
+            </div>
           </>
       );
     }
