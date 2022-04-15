@@ -52,6 +52,36 @@ def load_tables():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     return users, userstocks, portfolios, stocks
 
+# function for calling api
+def stockAPI(ticker):
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+    result = alcsession.query(stocks).filter_by(ticker = ticker).first()
+    
+    if not result:
+
+        params = {
+            'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+        }
+
+        api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
+        api_response = api_result.json()
+        name = api_response['name']
+        newstock = stocks.insert().values(ticker=ticker,
+                                          name=name)
+        alcsession.execute(newstock)
+        alcsession.commit()
+
+    
+    params = {
+    'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+    }
+
+    api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
+    api_response = api_result.json()
+
+    return api_response
+
+
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
@@ -320,58 +350,205 @@ def leaderboard():
 
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
-    users = [] # Array to hold the users from the database
-    invested = [] # Array to hold total amount invested by each user
-    current_amounts = [] # Array to hold current amount user's stocks are worth
-    percentages = [] # Holds percentage for each user up/down
-    usernames = [] # Holds usernames
 
     # Query to get portfolio id | sum(total invested) for each user
+<<<<<<< HEAD
     sqlInvested = alcsession.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
     ).join(users
     ).group_by(portfolios.portfolioid
+=======
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).group_by(portfolios.c.portfolioid
+>>>>>>> andrew
     ).all()
 
     alcsession.commit()
 
 
+<<<<<<< HEAD
     # Saves the returned dafta in the arrays
+=======
+    users = [] # Array to hold the users from the database
+    invested = [] # Array to hold total amount invested by each user
+    current_amounts = [] # Array to hold current amount user's stocks are worth
+    percentages = [] # Holds percentage for each user up/down
+    usernames = [] # Holds usernames
+    tickers = [] # Holds a list of tickers for each user
+    indecies = [] # Indexs for return 
+    
+    # Saves the returned data in the arrays
+>>>>>>> andrew
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
 
 
-    # Get current stock info from api
-    for i in range(0, len(users) - 1):
-            total = 0
-            for user in sqlInvested:
-                if user.portfolioid == users(i):
-                    api_response = pullstockinfo(user.ticker)  # Call api, not sure if I can use stockinfo endpoint or not
+    getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
+    ).join(stocks, stocks.c.stockid == portfolios.c.stockid
+    ).all()
+    
+    alcsession.commit()
 
-                    init_value = 0
-                    init_value = user.quantity * api_response.last
+    # Get current amounts from api
+    for i in range(0, len(users)):
+        total = 0
+        for t in getTickers:
+            if t.portfolioid == users[i]:
+                api_reponse = stockAPI(t.ticker)
 
-                    total += init_value
-                else:
-                    current_amounts[i] = total
+                print(api_reponse)
+                init_value = 0
+                init_value = t.quantity * api_reponse.get('open')
 
+                total += init_value
 
+        current_amounts.append(total)
 
     # Calculate ((current prices / total invested) - 1) * 100 for each user
-    for j in range(0, len(users) - 1):
-        percentages[j] = ((current_amounts[j] / invested[j]) - 1) * 100
+    for j in range(0, len(users)):
+        percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
+
+    for count in range(0, len(users)):
+        indecies.append(count + 1)
 
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
-    zippedreturn = zip(percentages, usernames)
+    zippedreturn = zip(percentages, usernames, indecies)
     sortedreturn = sorted(zippedreturn, reverse=True)
 
     # Returns json, in order, from largest percentage to smallest
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
+    #return jsonify(sortedreturn)
     return jsonify(sortedreturn)
+    
+
+
+@app.route("/sharing", methods=['POST', 'GET'])
+def share():
+    portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
+    users = Table('users', metadata_obj, autoload_with=engine)
+    stocks = Table('stocks', metadata_obj, autoload_with=engine)
+
+    # check to make sure a session is active
+    if (session):
+
+        # get user id from session info in sqlalchemy query
+        sessioninfo=session.get('user')
+        pretty=json.dumps(sessioninfo, indent=4)
+        userinfo = json.loads(pretty)
+        uid = userinfo['userinfo']['sub']
+        name = userinfo['userinfo']['name']
+        result = alcsession.query(users).filter_by(uid = uid).first()
+        uid = result[0]
+
+
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).group_by(portfolios.c.portfolioid
+    ).all()
+    
+    alcsession.commit()
+
+
+    users = [] # Array to hold the users from the database
+    invested = [] # Array to hold total amount invested by each user
+    current_amounts = [] # Array to hold current amount user's stocks are worth
+    percentages = [] # Holds percentage for each user up/down
+    usernames = [] # Holds usernames
+    tickers = [] # Holds a list of tickers for each user
+    userStocks = [] # Holds the current user's stocks
+    currentValues = [] # Holds init values for each user stock
+    differences = [] # Holds difference in init values for each stock
+    previousValues = [] # Holds previous values for each stock
+
+    # Saves the returned data in the arrays
+    for user in sqlInvested:
+        users.append(user.portfolioid)
+        usernames.append(user.username)
+        invested.append(user.total_invested)
+    
+    getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
+    ).join(stocks, stocks.c.stockid == portfolios.c.stockid
+    ).all()
+    
+    alcsession.commit()
+
+    # Get current amounts from api
+    for i in range(0, len(users)):
+        total = 0
+        for t in getTickers:
+            if t.portfolioid == users[i]:
+                api_reponse = stockAPI(t.ticker)
+
+                init_value = 0
+                init_value = t.quantity * api_reponse.get('open')
+
+                total += init_value
+
+        current_amounts.append(total)
+
+
+
+    # Calculate ((current prices / total invested) - 1) * 100 for each user
+    for j in range(0, len(users)):
+        percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
+
+    # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
+    # Sort both lists in the same way
+    percentages_sorted, users_sorted = map(list, zip(*sorted(zip(percentages, users), reverse=True)))
+
+    # Gets user's current position on the leaderboard
+    # Gets user's total portfolio return
+    for i in range(0, len(users_sorted)):
+        if users_sorted[i] == uid: 
+            leaderboardPos = i + 1
+            totalPortfolioReturn = percentages_sorted[i]
+
+    
+    # ----------------------------------------------------------------------
+    # This part is for finding best performing stock
+    # Query to get portfolio id | sum(total invested) for each user
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name, portfolios.c.initvalue
+    ).join(stocks, stocks.c.stockid == portfolios.c.stockid
+    ).all()
+    
+    alcsession.commit()
+
+
+    # Get current init values for each stock
+    for stock in sqlInvested:
+        if stock.portfolioid == uid: 
+            userStocks.append(stock.name)
+            previousValues.append(stock.quantity * stock.initvalue)
+            api_response = stockAPI(stock.ticker)  # Call api
+            init_value = 0
+            init_value = stock.quantity * api_response.get('open')
+            currentValues.append(init_value)
+
+
+    # Find the largest difference between init values
+    # We would then return the best performing stock, and how much percentage it is up
+    percentage = 0
+    for i in range(0, len(currentValues)):
+        differences.append(float(currentValues[i]) - float(previousValues[i]))
+
+        if differences[i] > percentage:
+            bestStock = userStocks[i]
+            percentage = differences[i]
+
+    # Returns the user's total portfolio return, leaderboard position, and the user's best performing
+    # stock, and how much that stock is up (percentage)
+    # Still need to add in profile image
+    returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
+                        'bestStock': bestStock, 'bestStockPercentage': percentage}
+    return returnValuesJson
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
