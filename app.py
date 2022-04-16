@@ -133,24 +133,18 @@ def users():
     allusers = json.dumps([row._asdict() for row in statement], indent=4)
 
     if (session):
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
+        userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         username = userinfo['userinfo']['name']
         email = userinfo['userinfo']['email']
-        
+
         statement = users.insert().values(uid=uid,
                                           username=username,
                                           email=email)
         alcsession.execute(statement)
         alcsession.commit()
-        #return render_template("users.html", username=username)
-        return jsonify(username)
 
-@app.route("/topusers", methods=['GET'])
-def topusers():
-    return 45
+        return jsonify(username)
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -161,7 +155,8 @@ def pullstockinfo():
 
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
-    
+
+
     if not result:
 
         params = {
@@ -170,37 +165,39 @@ def pullstockinfo():
 
         api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
         api_response = api_result.json()
+        print(api_response)
         name = api_response['name']
         newstock = stocks.insert().values(ticker=ticker,
                                           name=name)
         alcsession.execute(newstock)
         alcsession.commit()
 
-    
+    # getting the most recent stock data
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
     }
 
-    api_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
-    api_response = api_result.json()
+    info_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest', params)
+    name_result = requests.get('http://api.marketstack.com/v1/tickers/' + ticker, params)
+    stock_info = info_result.json()
+    stock_name = name_result.json()
 
-    return api_response
+    stock = json.dumps([stock_info, stock_name])
+
+    return stock
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
-    
+
     users = Table('users', metadata_obj, autoload_with=engine)
     userstocks = Table('userstocks', metadata_obj, autoload_with=engine)
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
-    
+
     # check to make sure a session is active
     if (session):
 
-        # get user id from session info in sqlalchemy query
-        sessioninfo=session.get('user')
-        pretty=json.dumps(sessioninfo, indent=4)
-        userinfo = json.loads(pretty)
+        userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
         result = alcsession.query(users).filter_by(uid = uid).first()
@@ -226,27 +223,27 @@ def portfolio():
 
         # adding or removing portfolio items
         if (request.method == 'POST'):
-        
+
           ticker = request.form['ticker']
           status = request.form['changeport']
           tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
-          
+
           if (status == "Remove Portfolio"):
               portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=tickerexist[0]).delete()
               print(portfremove)
               print("remove")
               alcsession.commit()
               return redirect("/portfolio")
-          
+
           if (status == "Add Portfolio"):
             portfadd = portfolios.insert().values(portfolioid=uid,
                                                  stockid=tickerexist[0])
             alcsession.execute(portfadd)
             alcsession.commit()
             return redirect("/portfolio")
-              
+
         if (request.method == 'GET'):
-          
+
           # cleaning up portfolio output
           #jsonport = json.dumps([row._asdict() for row in existsportfolio], indent=4)
           stockdata = {}
@@ -260,7 +257,7 @@ def portfolio():
               stockdata['initvalue'] = jsonport['initvalue']
               print(stockdata)
               data.append(stockdata)
-              
+
           print(data)
           #return render_template("portfolio.html", stockdata=stockdata)
           return jsonify(stockdata)
@@ -277,7 +274,7 @@ def watchlist():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
     if (session):
-        
+
         userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
@@ -291,11 +288,11 @@ def watchlist():
                                                     stockid=0)
             alcsession.execute(createconn)
             alcsession.commit()
-        
+
         existswatch = alcsession.query(watchlists).filter_by(wid = uid).all()
-        
+
         watchlistdata = {}
-        
+
         # this is used when the watchlist is being retrieved
         if (request.method == 'GET'):
             ids = []
@@ -306,7 +303,7 @@ def watchlist():
                 watchlistdata['stockid'] = jsonport['stockid']
                 print(type(watchlistdata))
                 ids.append(watchlistdata['stockid'])
-            
+
             for e in range(len(ids)):
                 try:
                     getname = alcsession.query(stocks).filter_by(stockid=ids[e]).first()
@@ -317,29 +314,29 @@ def watchlist():
 
             #return render_template("WatchList.html",stocknames=stocknames)
             return jsonify(stocknames)
-        
+
         # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
 
             ticker = request.form['ticker']
             status = request.form['changelist']
-            
+
             tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
-            
+
             if (status == "Remove Watchlist"):
               watchlistremove = alcsession.query(watchlists).filter_by(uid=uid, stockid=tickerexist[0]).delete()
               print(watchlistremove)
               print("remove")
               alcsession.commit()
               return redirect("/watchlist")
-            
+
             print(tickerexist[0])
             watchlistinsert = watchlists.insert().values(uid=uid,
                                                    wid=uid,
                                                    stockid=tickerexist[0])
             alcsession.execute(watchlistinsert)
             alcsession.commit()
-            
+
             #return render_template("WatchList.html",tickerexist=tickerexist)
             return jsonify(tickerexist)
 
@@ -357,28 +354,20 @@ def leaderboard():
 
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
-    ).join(users, users.c.uid == portfolios.c.portfolioid
-    ).group_by(portfolios.c.portfolioid
+    sqlInvested = alcsession.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
+    ).join(users
+    ).group_by(portfolios.portfolioid
     ).all()
-    
+
     alcsession.commit()
 
 
-    users = [] # Array to hold the users from the database
-    invested = [] # Array to hold total amount invested by each user
-    current_amounts = [] # Array to hold current amount user's stocks are worth
-    percentages = [] # Holds percentage for each user up/down
-    usernames = [] # Holds usernames
-    tickers = [] # Holds a list of tickers for each user
-    indecies = [] # Indexs for return 
-    
-    # Saves the returned data in the arrays
+    # Saves the returned dafta in the arrays
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
-    
+
 
     getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
