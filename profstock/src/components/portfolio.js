@@ -4,9 +4,9 @@ import axios from 'axios';
 
 
 class Stock extends React.Component {
-  stocks = fetch('http://localhost:5000/portfolio')
+  items = fetch('http://localhost:5000/portfolio')
 
-  items = [
+  stocks = [
     {
       id: 1,
       name: 'APPLE INC',
