@@ -89,7 +89,7 @@ class Stock extends React.Component {
     }]
   constructor(props) {
     super(props);
-    this.state = { value: '' };
+    this.state = { value: 'APPL' };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -113,19 +113,20 @@ class Stock extends React.Component {
 
   removeStock(ticket) {
     var list = this.items;
-    console.log(ticket)
     for (let i = 0; i < list.length; i++) {
 
       if (list[i].ticket === ticket) {
         //alert('match found');
-        list[i].quantity = 'i';
+       var l = parseInt(list[i].quantity)
+       if(l == 0) {
+         //remove item
+       }
+       l -= 1;
+       list[i].quantity = l.toString()
+        
       }
     }
 
-  }
-
-  sayHello() {
-    alert('You clicked me!');
   }
 
   createlist() {
