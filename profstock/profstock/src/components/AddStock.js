@@ -22,7 +22,7 @@ export default class AddStock extends React.Component {
         const stock = {
             ticker: this.state.name
         };
-        axios.post(`https://jsonplaceholder.typicode.com/users`, { user })
+        axios.post(`https://jsonplaceholder.typicode.com/users`, { stock })
       .then(res => {
         console.log(res);
         console.log(res.data);

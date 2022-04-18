@@ -14,15 +14,15 @@ export default class UserEdit extends React.Component {
     email: ''
   }
 
-  handleFirstChange = event => {
-    this.setState({ firstname: event.target.value });
-  }
-  handleSecondChange = event => {
-      this.setState({ lastname: event.target.value});
-  }
-  handleThirdChange = event => {
-    this.setState({email: event.target.value });
-  }
+  //handleFirstChange = event => {
+    //this.setState({ firstname: event.target.value });
+  //}
+  //handleSecondChange = event => {
+    //  this.setState({ lastname: event.target.value});
+  //}
+  //handleThirdChange = event => {
+    //this.setState({email: event.target.value });
+  //}
   
 
   handleSubmit = event => {
@@ -50,13 +50,13 @@ export default class UserEdit extends React.Component {
             <br/>
             <br/>
             <label for="firstname">First name:</label>
-            <input type="text" name="firstname" onChange={this.handleFirstChange}></input>
+            <input type="text" name="firstname" ></input>
             <label for="lastname">Last name:</label>
-            <input type="text" name="lastname" onChange={this.handleSecondChange}></input>
+            <input type="text" name="lastname" ></input>
             <br/><br/>
             <hr></hr>
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" onChange={this.handleThirdChange}></input>
+            <input type="email" id="email" name="email" ></input>
             <br/><br/>
             <hr></hr>
             <br/><br/>

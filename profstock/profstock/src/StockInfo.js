@@ -6,9 +6,9 @@ import SubLinks from './components/SubLinks.js';
 
 function App() {
     return (
-        <div>
+        <div ClassName="StockHome">
             <header>
-                <h1>StockInfo</h1>
+                <h1>ProfStock</h1>
             </header>
             <SubLinks/>
             <StockSearch/>

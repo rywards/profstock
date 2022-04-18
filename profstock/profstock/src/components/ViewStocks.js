@@ -13,7 +13,7 @@ export default class ViewStocks extends React.Component {
     }
 
     componentDidMount() {
-        axios.get(`https://jsonplaceholder.typicode.com/users`)
+        axios.get('http://api.marketstack.com/v1/tickers/')
           .then(res => {
             const stocks = res.data;
             this.setState({ stocks });
