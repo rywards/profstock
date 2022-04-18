@@ -1,14 +1,16 @@
-import './style.css';
+import './App.css';
 import StockSearch from './components/StockSearch.js';
 import AddStock from './components/AddStock.js';
 import ViewStocks from './components/ViewStocks.js'
+import SubLinks from './components/SubLinks.js';
 
 function App() {
     return (
         <div>
             <header>
-                <h1>FUCK</h1>
+                <h1>StockInfo</h1>
             </header>
+            <SubLinks/>
             <StockSearch/>
             <AddStock/>
             <ViewStocks/>

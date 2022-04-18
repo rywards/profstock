@@ -1,21 +1,22 @@
 import React from 'react';
 import axios from 'axios';
 
+<>
+<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</>
+
 export default class ViewStocks extends React.Component {
     state = {
-        date: '',
-        closeprice: '',
-        openprice: '',
-        high: '',
-        low: '',
-        volume: ''
+        stocks: []
     }
 
     componentDidMount() {
         axios.get(`https://jsonplaceholder.typicode.com/users`)
           .then(res => {
-            const persons = res.data;
-            this.setState({ date, closeprice, openprice, high, low, volume });
+            const stocks = res.data;
+            this.setState({ stocks });
           })
     }
 
@@ -25,54 +26,54 @@ export default class ViewStocks extends React.Component {
             <tr>
                 <th scope="row">Date of Information</th>
                 {
-                this.state.date
-                    .map(date =>
-                    <td key={date}>{date}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.date}>{stocks.date}</td>
                     )
                 }
             </tr>
             <tr>
                 <th scope="row">Close Price</th>
                 {
-                this.state.closeprice
-                    .map(closeprice =>
-                    <td key={closeprice}>{closeprice}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.closeprice}>{stocks.closeprice}</td>
                     )
                 }
             </tr>
             <tr>
                 <th scope="row">Open Price</th>
                 {
-                this.state.openprice
-                    .map(openprice =>
-                    <td key={openprice}>{openprice}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.openprice}>{stocks.openprice}</td>
                     )
                 }
             </tr>
             <tr>
                 <th scope="row">Day High</th>
                 {
-                this.state.high
-                    .map(high =>
-                    <td key={high}>{high}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.high}>{stocks.high}</td>
                     )
                 }
             </tr>
             <tr>
                 <th scope="row">Day Low</th>
                 {
-                this.state.low
-                    .map(low =>
-                    <td key={low}>{low}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.low}>{stocks.low}</td>
                     )
                 }
             </tr>
             <tr>
                 <th scope="row">Daily Volume</th>
                 {
-                this.state.volume
-                    .map(volume =>
-                    <td key={volume}>{volume}</td>
+                this.state.stocks
+                    .map(stocks =>
+                    <td key={stocks.volume}>{stocks.volume}</td>
                     )
                 }
             </tr>

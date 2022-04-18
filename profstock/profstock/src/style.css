@@ -1,0 +1,169 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  header {
+    background-color: #666;
+    padding: 1px;
+    text-align: center;
+    font-size: 30px;
+    color: white;
+  }
+  
+  table.home1, th, td {
+    border: 1px solid;
+  }
+  
+  #homeContainer {
+    width: 100%;
+    background-color: lightblue;
+    margin: auto;
+  }
+  
+  #Top10StockTable {
+    width: 60%;
+    float: left;
+  }
+  
+  #TopUsersTable {
+    width: 40%;
+    float: left;
+  }
+  #clear {
+    clear: both;
+  }
+  
+  table.home2 {
+    width: 90%;
+  }
+  .home2 td,th {
+      border: 1px solid rgb(8, 7, 7);
+  }
+  /* Style the footer */
+  footer {
+    background-color: #777;
+    padding: 10px;
+    text-align: center;
+    color: white;
+  }
+  
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+  
+  li {
+    float: left;
+  }
+  
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
+  li a:hover {
+    background-color: #111;
+  }
+  
+  /*.text-fields {
+      margin: auto;
+      text-align: center;
+      width: 50%;
+      border: 3px solid green;
+      padding: 10px;
+    }*/
+  
+    .tickerinfo thead,
+  tfoot {
+      background-color: #3f87a6;
+      color: #fff;
+  }
+  
+  .tickerinfo tbody {
+      background-color: #e4f0f5;
+  }
+  
+  .tickerinfo caption {
+      padding: 10px;
+      caption-side: bottom;
+  }
+  
+  .tickerinfo table {
+      border-collapse: collapse;
+      border: 2px solid rgb(200, 200, 200);
+      letter-spacing: 1px;
+      font-family: sans-serif;
+      font-size: .8rem;
+  }
+  
+  .tickerinfo td,
+  th {
+      border: 1px solid rgb(190, 190, 190);
+      padding: 5px 10px;
+  }
+  
+  .tickerinfo td {
+      text-align: center;
+  }
+  
+  
+  .list-item{
+    padding: 10px;
+    border: 2px solid black;
+  }
+  
+  #ProfileName{
+    font-size: larger;
+  }
+  
+  #ProfileSubInfo{
+    font-size:medium;
+  }
+  
+  .pfph1 {
+    background-color: darkred;
+    padding: 1px;
+    text-align:center;
+    color: white;
+    float: left;
+    padding: 5px;
+    height: 100%;
+    
+  }
+  
+  #pfpbutton{
+    float: right;
+    padding: 10px;
+    
+  }
+  
+  #descriptionlabel{
+    float: left;
+    padding: 20px;
+  
+  
+  }
+  
+  
+  
+  #profileText {
+    padding: 10px;
+    text-align: center;
+    float: center;
+    
+  }
+  
+  #pfpdisplayinfo{
+    list-style-type: none;
+  }
+  
