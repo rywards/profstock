@@ -3,6 +3,7 @@ import './App.css';
 
 import PersonList from './components/PersonList.js';
 import SubLinks from './components/SubLink.js';
+import WatchInfo from './components/Watchlist';
 
 function App() {
   return (
@@ -13,7 +14,9 @@ function App() {
       </header>
       
       <SubLinks/>
-      
+      <WatchInfo/>
+
+  
       <footer>
       <p></p>
       </footer>
