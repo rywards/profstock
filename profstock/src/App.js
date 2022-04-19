@@ -6,8 +6,18 @@ import SubLinks from './components/SubLink.js';
 
 function App() {
   return (
-    <div ClassName="App">
-      <PersonList/>
+    <div ClassName="Watchlist">
+     
+     <header>
+      <h1>ProfStock</h1>
+      </header>
+      
+      <SubLinks/>
+      
+      <footer>
+      <p></p>
+      </footer>
+      <p><PersonList/></p>
     </div>
   )
 }
