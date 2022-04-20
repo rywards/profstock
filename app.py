@@ -14,6 +14,9 @@ from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, S
 from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
+from flask import send_file
+
+
 # initializing database connection
 engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
