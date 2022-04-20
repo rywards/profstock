@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -527,9 +527,31 @@ def share():
     # Returns the user's total portfolio return, leaderboard position, and the user's best performing
     # stock, and how much that stock is up (percentage)
     # Still need to add in profile image
-    returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
-                        'bestStock': bestStock, 'bestStockPercentage': percentage}
-    return returnValuesJson
+    #returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos, 
+    #                    'bestStock': bestStock, 'bestStockPercentage': percentage}
+    #return returnValuesJson
+
+    file = open("stats.html", "w")
+    data = f"""<html>
+            <head>
+            <title>Stats</title>
+            </head>
+            <body>
+  
+            <p>Total Portfolio Return: {totalPortfolioReturn}</p>
+            <p>Leaderboard Position: {leaderboardPos}</p>
+            <p>Best Stock: {bestStock}</p>
+            <p>{bestStock} percentage: {percentage}%</p>
+
+
+  
+            </body>
+            </html>
+            """
+    file.write(data)
+    file.close()
+
+    return send_file("stats.html", as_attachment=True)
 
 
 if __name__ == "__main__":
