@@ -415,7 +415,7 @@ def leaderboard():
     #sortedreturn = sorted(zippedreturn, reverse=True)
 
     percentages_sorted, usernames_sorted= map(list, zip(*sorted(zip(percentages, usernames), reverse=True)))
-
+    
 
     # Returns json, in order, from largest percentage to smallest
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
