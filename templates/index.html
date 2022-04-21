@@ -23,6 +23,10 @@
             <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
             <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
+            {% if session %}
+            <li><a href="{{url_for('profile')}}">Profile</a></li>
+            {% else %}
+            {% endif %}
             <li style="float:right">
               <form action="/stockinfo" method="post">
                 <input type="text" name="ticker" placeholder="Enter ticker"/>
@@ -37,38 +41,28 @@
           </ul>
         </h2>
       </div>
-      <h2>
-          <tr>
-            <td>
-              <table class = "topstocks">
-                <tr>
-                  <th>Name</th>
-                  <th>$</th>
-                  <th>#</th>
-                </tr>
-              </table>
-            </td>
-            <td>
+        <div class="tickerinfo">
               <table class = "topusers">
-                <tr>
-                  <th>Username</th>
-                  <th>Return #%</th>
-                </tr>
+                <thead>
+                  <tr>
+                    <th>Top Users</th>
+                    <th>Return %</th>
+                    <th>Position</th>
+                  </tr>
+                </thead>
+                {% for result in leaderboardlist %}
+                  <tr>
+                    {% for elem in result %}
+                      <td>{{elem}}</td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
               </table>
             </td>
           </tr>
-      </h2>
-      
-      
-      
-      <footer>
-        <p></p>
-      </footer>
-      
-      </body>
-      </html>
-    
+    </div>
 
+<br></br>
 <footer>
   <p></p>
 </footer>

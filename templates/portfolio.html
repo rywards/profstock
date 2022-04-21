@@ -11,8 +11,8 @@
         <h1>
             <ul>
                 <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
-              <li><a href="{{ url_for('portfolio')">Portfolio</a></li>
-              <li><a href="{{ url_for('watchlist')">Watchlist</a></li>
+              <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+              <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
               <li style="float:right">
                 <!-- send post request with stock ticker-->
                 <form action="/stockinfo" method="post">
@@ -48,7 +48,7 @@
                       </tr>
                   </thead>
                   <tbody>
-                      
+
                       <tr>
                         <th scope="row">quantity</th>
                         <td>{{quantity}}</td>
