@@ -18,7 +18,7 @@ from flask import send_file
 
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -357,20 +357,28 @@ def leaderboard():
 
 
     # Query to get portfolio id | sum(total invested) for each user
-    sqlInvested = alcsession.query(users.username, portfolios.quantity, portfolios.ticker, portfolios.portfolioid, func.sum(portfolios.quantity * portfolios.initvalue).label('total_invested')
-    ).join(users
-    ).group_by(portfolios.portfolioid
+    sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
+    ).join(users, users.c.uid == portfolios.c.portfolioid
+    ).group_by(portfolios.c.portfolioid
     ).all()
-
+    
     alcsession.commit()
 
 
-    # Saves the returned dafta in the arrays
+    users = [] # Array to hold the users from the database
+    invested = [] # Array to hold total amount invested by each user
+    current_amounts = [] # Array to hold current amount user's stocks are worth
+    percentages = [] # Holds percentage for each user up/down
+    usernames = [] # Holds usernames
+    tickers = [] # Holds a list of tickers for each user
+    indecies = [] # Indexs for return 
+    
+    # Saves the returned data in the arrays
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
-
+    
 
     getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
@@ -411,6 +419,7 @@ def leaderboard():
     #return jsonify(sortedreturn)
     return jsonify(sortedreturn)
     
+
 
 
 @app.route("/sharing", methods=['POST', 'GET'])
@@ -545,8 +554,6 @@ def share():
             <p>Leaderboard Position: {leaderboardPos}</p>
             <p>Best Stock: {bestStock}</p>
             <p>{bestStock} percentage: {percentage}%</p>
-
-
   
             </body>
             </html>
