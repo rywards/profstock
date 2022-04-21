@@ -332,9 +332,16 @@ def portfolio():
           tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
 
           if (status == "Remove Portfolio"):
-              portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=stockidexist[0]).delete()
-              alcsession.commit()
-              return redirect("/portfolio")
+              try:
+                  portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=tickerexist[0]).delete()
+                  alcsession.commit()
+                  return redirect("/portfolio")
+              except TypeError:
+                  portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=stockidexist[0]).delete()
+                  alcsession.commit()
+                  return redirect("/portfolio")
+
+
 
           if (status == "Add Portfolio"):
 
@@ -367,10 +374,6 @@ def portfolio():
               print(stockdata)
 
               data.append(stockdata)
-
-          print("THIS IS THE RESULT  DATA: ", data)
-          print("THIS IS THE SECOND DATA ELEMENT: ", data[1])
-          print("THIS IS THE SECOND ELEMENT OF DATA SECOND  ELEMENT: ", data[1]['stockname'])
           #return render_template("portfolio.html")
           return render_template("portfolio.html", data=data)
     else:
