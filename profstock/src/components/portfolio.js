@@ -4,9 +4,9 @@ import axios from 'axios';
 
 
 class Stock extends React.Component {
-  items = fetch('http://localhost:5000/portfolio')
-
-  stocks = [
+  items = fetch('http://localhost:5000/portfolio') 
+   
+  STOK = [
     {
       id: 1,
       name: 'APPLE INC',
@@ -111,19 +111,28 @@ class Stock extends React.Component {
     event.preventDefault();
   }
 
+  removeList(id) {
+    const newList = this.items.filter((item) => item.id !== id);
+    this.items = newList;
+    window.location.reload()
+  }
+  
   removeStock(ticket) {
     var list = this.items;
     for (let i = 0; i < list.length; i++) {
 
       if (list[i].ticket === ticket) {
         //alert('match found');
-       var l = parseInt(list[i].quantity)
-       if(l == 0) {
-         //remove item
-       }
-       l -= 1;
-       list[i].quantity = l.toString()
-        
+        var l = parseInt(list[i].quantity)
+        if (l === 0) {
+          //remove item
+          this.removeList(ticket);
+        }
+        else {
+          l -= 1;
+          list[i].quantity = l.toString()
+        }
+
       }
     }
 
@@ -131,7 +140,7 @@ class Stock extends React.Component {
 
   createlist() {
     const list = this.items.map((item) =>
-      <tr key={item.id}>
+      <tr key={item.ticket}>
         <td>{item.name}</td>
         <td>{item.quantity}</td>
         <button value={item.ticket} onClick={this.handleClick}>Remove</button>

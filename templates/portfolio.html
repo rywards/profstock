@@ -1,124 +1,307 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <Title>Portfolio</Title>
-        <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
-    <body>
-        <div id="root"></div>
-<div id="subInfo"></div>
-    <script type="text/babel">
-        class SubLinks extends React.Component {
-        render() {
-        return (
-            <h2>
-            <ul>
-                <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="portfolio">Portfolio</a></li>
-                <li><a href="watchlist">Watchlist</a></li>
-                <li style={ {float:"right"}}>
-                <form action="/stockinfo" method="post">
-                    <input type="text" name="ticker" placeholder="Enter ticker"/>
-                    <input type="submit" value="Search"/>
-                </form>
-                </li>
-                {% if session %}
-                <li style={ {float:"right"}}><a href="{{url_for('logout')}}">Logout</a></li>
-                {% else %}
-                <li style={ {float:"right"}}><a href="{{url_for('login')}}">Login</a></li>
-                {% endif %}
-            </ul>
-            </h2>);
-        }
-    }
-    function listOfStocks() {
-        const items = [
-        {
-        id: 1,
-        name: 'APPLE INC',
-        marketCap:'$2.599 T',
-        price: '$159.30',
-        ticket: 'AAPL'
-        },
-        {
-        id: 2,
-        name: 'Saudi Aramco',
-        marketCap:'$2.386 T',
-        price: '$11.94',
-        ticket: '2222.SR'
-        },
-        {
-        id: 3,
-        name: 'MICROSOFT CORP.',
-        marketCap:'$2.090 T',
-        price: '$278.91',
-        ticket: 'MSFT'
-        },
-        {
-        id: 4,
-        name: 'Alphabet (Google)',
-        marketCap:'$1.670 T',
-        price: '$2,529',
-        ticket: 'GOOG'
-        },
-        {
-        id: 5,
-        name: 'Amazon',
-        marketCap:'$1.398 T',
-        price: '$2,749',
-        ticket: 'AMZN'
-        },
-        {
-        id: 6,
-        name: 'Tesla',
-        marketCap:'$831.54 B',
-        price: '$804.58',
-        ticket: 'TSLA'
-        },
-        {
-        id: 7,
-        name: 'Berkshire Hathaway',
-        marketCap:'$715.71 B',
-        price: '$484,527',
-        ticket: 'BRK-A'
-        },
-        {
-        id: 8,
-        name: 'Meta (Facebook)',
-        marketCap:'$535.97 B',
-        price: '$187.47',
-        ticket: 'FB'
-        },
-        {
-        id: 9,
-        name: 'NVIDIA',
-        marketCap:'$532.09 B',
-        price: '$213.52',
-        ticket: 'NVDA'
-        },
-        {
-        id: 10,
-        name: 'TSMC',
-        marketCap:'$519.23 B',
-        price: '$99.29',
-        ticket: 'TSM'
-        }]
 
-    const options = [];
-    for (let item of items) {
-       row = (
-        <option value={item.ticket}>{item.name}</option>
-      );
-      itemRows.push(row);
-    }
-    return (
-        <select id="">
-            {options}
-        </select>
-    )
-    }
-    ReactDOM.render(<SubLinks />, document.getElementById('root'))
-    ReactDOM.render(<SubInfo />, document.getElementById('subInfo'))
+<head>
+    <Title>Portfolio</Title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div id="root"></div>
+    <div id="subInfo"></div>
+    <div id="portfolio"></div>
+    <script type="text/babel">
+        class Stock extends React.Component {
+            items = fetch('http://localhost:5000/portfolio')
+
+            STOK = [
+                {
+                    id: 1,
+                    name: 'APPLE INC',
+                    marketCap: '$2.599 T',
+                    price: '$159.30',
+                    ticket: 'AAPL',
+                    quantity: '24'
+                },
+                {
+                    id: 2,
+                    name: 'Saudi Aramco',
+                    marketCap: '$2.386 T',
+                    price: '$11.94',
+                    ticket: '2222.SR',
+                    quantity: '65'
+                },
+                {
+                    id: 3,
+                    name: 'MICROSOFT CORP.',
+                    marketCap: '$2.090 T',
+                    price: '$278.91',
+                    ticket: 'MSFT',
+                    quantity: '23'
+                },
+                {
+                    id: 4,
+                    name: 'Alphabet (Google)',
+                    marketCap: '$1.670 T',
+                    price: '$2,529',
+                    ticket: 'GOOG',
+                    quantity: '20'
+                },
+                {
+                    id: 5,
+                    name: 'Amazon',
+                    marketCap: '$1.398 T',
+                    price: '$2,749',
+                    ticket: 'AMZN',
+                    quantity: '12'
+                },
+                {
+                    id: 6,
+                    name: 'Tesla',
+                    marketCap: '$831.54 B',
+                    price: '$804.58',
+                    ticket: 'TSLA',
+                    quantity: '42'
+                },
+                {
+                    id: 7,
+                    name: 'Berkshire Hathaway',
+                    marketCap: '$715.71 B',
+                    price: '$484,527',
+                    ticket: 'BRK-A',
+                    quantity: '22'
+                },
+                {
+                    id: 8,
+                    name: 'Meta (Facebook)',
+                    marketCap: '$535.97 B',
+                    price: '$187.47',
+                    ticket: 'FB',
+                    quantity: '23'
+                },
+                {
+                    id: 9,
+                    name: 'NVIDIA',
+                    marketCap: '$532.09 B',
+                    price: '$213.52',
+                    ticket: 'NVDA',
+                    quantity: '25'
+                },
+                {
+                    id: 10,
+                    name: 'TSMC',
+                    marketCap: '$519.23 B',
+                    price: '$99.29',
+                    ticket: 'TSM',
+                    quantity: '4'
+                }]
+            constructor(props) {
+                super(props);
+                this.state = { value: 'APPL' };
+
+                this.handleChange = this.handleChange.bind(this);
+                this.handleSubmit = this.handleSubmit.bind(this);
+            }
+
+            handleChange(event) {
+                this.setState({ value: event.target.value });
+            }
+
+            handleClick = (event) => {
+
+                this.setState({ value: event.target.value });
+
+                this.removeStock(this.state.value);
+                event.preventDefault();
+            }
+            handleSubmit(event) {
+                alert('Your stock is: ' + this.state.value);
+                event.preventDefault();
+            }
+
+            removeList(id) {
+                const newList = this.items.filter((item) => item.id !== id);
+                this.items = newList;
+                window.location.reload()
+            }
+
+            removeStock(ticket) {
+                var list = this.items;
+                for (let i = 0; i < list.length; i++) {
+
+                    if (list[i].ticket === ticket) {
+                        //alert('match found');
+                        var l = parseInt(list[i].quantity)
+                        if (l === 0) {
+                            //remove item
+                            this.removeList(ticket);
+                        }
+                        else {
+                            l -= 1;
+                            list[i].quantity = l.toString()
+                        }
+
+                    }
+                }
+
+            }
+
+            createlist() {
+                const list = this.items.map((item) =>
+                    <tr key={item.ticket}>
+                        <td>{item.name}</td>
+                        <td>{item.quantity}</td>
+                        <button value={item.ticket} onClick={this.handleClick}>Remove</button>
+                    </tr>
+                );
+                return (
+                    <tbody>{list}</tbody>
+                )
+
+            }
+
+
+            render() {
+
+                return (
+                    <>
+
+                        <div id="homeContainer">
+                            <div id="Top10StockTable">
+                                <div class="tickerinfo">
+
+                                    <table className="home2" align="center">
+                                        <thead>
+                                            <tr>
+                                                <th>stock</th>
+                                                <th>quantity</th>
+                                            </tr>
+                                        </thead>
+
+                                        {this.createlist()}
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                );
+            }
+        }
+        class SubLinks extends React.Component {
+            render() {
+                return (
+                    <h2>
+                        <ul>
+                            <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
+                            <li><a href="portfolio">Portfolio</a></li>
+                            <li><a href="watchlist">Watchlist</a></li>
+                            <li style={{ float: "right" }}>
+                                <form action="/stockinfo" method="post">
+                                    <input type="text" name="ticker" placeholder="Enter ticker" />
+                                    <input type="submit" value="Search" />
+                                </form>
+                            </li>
+                            {% if session %}
+                            <li style={{ float: "right" }}><a href="{{url_for('logout')}}">Logout</a></li>
+                            {% else %}
+                            <li style={{ float: "right" }}><a href="{{url_for('login')}}">Login</a></li>
+                            {% endif %}
+                        </ul>
+                    </h2>);
+            }
+        }
+        function listOfStocks() {
+            const items = [
+                {
+                    id: 1,
+                    name: 'APPLE INC',
+                    marketCap: '$2.599 T',
+                    price: '$159.30',
+                    ticket: 'AAPL'
+                },
+                {
+                    id: 2,
+                    name: 'Saudi Aramco',
+                    marketCap: '$2.386 T',
+                    price: '$11.94',
+                    ticket: '2222.SR'
+                },
+                {
+                    id: 3,
+                    name: 'MICROSOFT CORP.',
+                    marketCap: '$2.090 T',
+                    price: '$278.91',
+                    ticket: 'MSFT'
+                },
+                {
+                    id: 4,
+                    name: 'Alphabet (Google)',
+                    marketCap: '$1.670 T',
+                    price: '$2,529',
+                    ticket: 'GOOG'
+                },
+                {
+                    id: 5,
+                    name: 'Amazon',
+                    marketCap: '$1.398 T',
+                    price: '$2,749',
+                    ticket: 'AMZN'
+                },
+                {
+                    id: 6,
+                    name: 'Tesla',
+                    marketCap: '$831.54 B',
+                    price: '$804.58',
+                    ticket: 'TSLA'
+                },
+                {
+                    id: 7,
+                    name: 'Berkshire Hathaway',
+                    marketCap: '$715.71 B',
+                    price: '$484,527',
+                    ticket: 'BRK-A'
+                },
+                {
+                    id: 8,
+                    name: 'Meta (Facebook)',
+                    marketCap: '$535.97 B',
+                    price: '$187.47',
+                    ticket: 'FB'
+                },
+                {
+                    id: 9,
+                    name: 'NVIDIA',
+                    marketCap: '$532.09 B',
+                    price: '$213.52',
+                    ticket: 'NVDA'
+                },
+                {
+                    id: 10,
+                    name: 'TSMC',
+                    marketCap: '$519.23 B',
+                    price: '$99.29',
+                    ticket: 'TSM'
+                }]
+
+            const options = [];
+            for (let item of items) {
+                row = (
+                    <option value={item.ticket}>{item.name}</option>
+                );
+                itemRows.push(row);
+            }
+            return (
+                <select id="">
+                    {options}
+                </select>
+            )
+        }
+        ReactDOM.render(<SubLinks />, document.getElementById('root'))
+        ReactDOM.render(<SubInfo />, document.getElementById('subInfo'))
+        ReactDOM.render(<Stock />, document.getElementById('portfolio'))
     </script>
-    </body>
+</body>
+
 </html>
