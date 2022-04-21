@@ -68,8 +68,10 @@
       <input type="text" value="Watch List" onclick="waitingList()">
       <table border="1">
         <tbody>
-        <tr><td>Stock Name</td></tr>
-        <tr><td> {{stocknames}} </td></tr>
+          {% for id in stocknames}
+          <tr><td>Stock Name</td></tr>
+          <tr><td> {{stocknames}} </td></tr>
+          {% end for %}
         </tbody>
         </table>
 <footer>

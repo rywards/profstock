@@ -11,8 +11,8 @@
         <h1>
             <ul>
                 <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
-              <li><a href="portfolio">Portfolio</a></li>
-              <li><a href="watchlist">Watchlist</a></li>
+              <li><a href="{{ url_for('portfolio')">Portfolio</a></li>
+              <li><a href="{{ url_for('watchlist')">Watchlist</a></li>
               <li style="float:right">
                 <!-- send post request with stock ticker-->
                 <form action="/stockinfo" method="post">
@@ -29,9 +29,9 @@
           </h1>
           <label for="stocks">Stocks</label>
             <select name="stocks">
-                {%for data in stockdata%}
+                {% for data in stockdata %}
                 <option value="{{data}}">{{data}}</option>
-                {%endfor%}
+                {% endfor %}
             </select>
 
             <div class="tickerinfo">

@@ -123,13 +123,6 @@ def logout():
 def home():
     return render_template("index.html")
 
-@app.route("/profile.html")
-def profile():
-    if (session):
-        #return render_template("profile.html", session=session.get('user'), pretty=json.dumps(session.get('user'), indent=4))
-        return jsonify(session.get('user'), json.dumps(session.get('user')))
-    else:
-        return redirect("/login")
 
 
 # Gets list of all registered users
@@ -189,9 +182,27 @@ def pullstockinfo():
     stock_info = info_result.json()
     stock_name = name_result.json()
 
+    print("stock informtaion print:",stock_info)
+
+    date = stock_info['date']
+    name = stock_name['name']
+    openprice = stock_info['open']
+    close = stock_info['close']
+    high = stock_info['high']
+    low = stock_info['low']
+    volume = stock_info['volume']
+    dividend = stock_info['dividend']
+
     stock = json.dumps([stock_info, stock_name])
 
-    return stock
+
+    return render_template("stockinfo.html", date=date,  
+                                             name=name,
+                                             openprice=openprice,
+                                             high=high,
+                                             low=low,
+                                             volume=volume,
+                                             dividend=dividend)
 
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
@@ -281,6 +292,7 @@ def portfolio():
         return redirect("/login")
 
 
+# get watchlist data for user
 @app.route("/watchlist", methods=['GET','POST'])
 def watchlist():
 
@@ -317,7 +329,7 @@ def watchlist():
                 jsonport = json.dumps(row._asdict(), indent=4)
                 jsonport = json.loads(jsonport)
                 watchlistdata['stockid'] = jsonport['stockid']
-                print(type(watchlistdata))
+                print(watchlistdata)
                 ids.append(watchlistdata['stockid'])
 
             for e in range(len(ids)):
@@ -328,8 +340,7 @@ def watchlist():
                 except TypeError:
                     continue
 
-            #return render_template("WatchList.html",stocknames=stocknames)
-            return jsonify(stocknames)
+            return render_template("WatchList.html",stocknames=stocknames)
 
         # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
