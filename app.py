@@ -119,6 +119,11 @@ def logout():
 def home():
     return render_template("index.html")
 
+
+
+
+
+
 @app.route("/profile.html")
 def profile():
     if (session):
