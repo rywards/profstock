@@ -411,13 +411,16 @@ def leaderboard():
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
-    zippedreturn = zip(percentages, usernames, indecies)
-    sortedreturn = sorted(zippedreturn, reverse=True)
+    #zippedreturn = zip(percentages, usernames, indecies)
+    #sortedreturn = sorted(zippedreturn, reverse=True)
+
+    percentages_sorted, usernames_sorted= map(list, zip(*sorted(zip(percentages, usernames), reverse=True)))
+
 
     # Returns json, in order, from largest percentage to smallest
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
     #return jsonify(sortedreturn)
-    return jsonify(sortedreturn)
+    return jsonify(usernames_sorted)
     
 
 
