@@ -13,6 +13,10 @@
                 <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
               <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
               <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
+              {% if session %}
+              <li><a href="{{url_for('profile')}}">Profile</a></li>
+              {% else %}
+              {% endif %}
               <li style="float:right">
                 <!-- send post request with stock ticker-->
                 <form action="/stockinfo" method="post">
@@ -27,44 +31,44 @@
             {% endif %}
             </ul>
           </h1>
-          <label for="stocks">Stocks</label>
+          <label for="stocks">Portfolios: </label>
             <select name="stocks">
-                {% for data in stockdata %}
-                <option value="{{data}}">{{data}}</option>
+                {% for stock in data %}
+                <option value="{{stock['stockname']}}">{{stock['stockname']}}</option>
                 {% endfor %}
             </select>
 
             <div class="tickerinfo">
-
               <table>
                   <thead>
-                      <tr>
-                          <th>{{symbol}}</th>
-                          <th>
-                              <form action="/addstock" method="post">
-                                  <input type="hidden" name="ticker" value="{{symbol}}">
-                              </form>
-                          </th>
-                      </tr>
+                    <tr>
+                      <th>Name</th>
+                      <th>Quantity</th>
+                      <th>Inital Value</th>
+                      <th>Buy Date</th>
+                    </tr>
                   </thead>
                   <tbody>
-
+                    {% for stock in data %}
                       <tr>
-                        <th scope="row">quantity</th>
-                        <td>{{quantity}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Portfolio info</th>
-                        <td>{{stockdata}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">buy date</th>
-                        <td>{{buydate}}</td>
-                    </tr>
+                        <td>{{stock['stockname']}}</td>
+                        <td>{{stock['quantity']}}</td>
+                        <td>{{stock['initvalue']}}</td>
+                        <td>{{stock['buydate']}}</td>
+                        <td>
+                          <form action="/portfolio" method="post">
+                            <input type="hidden" name="ticker" value="{{stock['stockid']}}">
+                            <input type="submit" name="changelist" value="Remove Portfolio">
+                          </form>
+                        </td>
+
+                      </tr>
+                    {% endfor %}
+                  </form>
                   </tbody>
               </table>
-            <template>
-                <option value=""></option>
-            </template>
+            </div>
+
+
     </body>
 </html>

@@ -2,7 +2,7 @@ from importlib.metadata import metadata
 import json, requests
 from textwrap import indent
 
-from flask import Flask, render_template, request, jsonify, redirect, session, url_for
+from flask import Flask, render_template, request, jsonify, redirect, session, url_for, send_file
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
 from urllib import response
@@ -92,6 +92,26 @@ def stockAPI(ticker):
 
     return api_response
 
+# Gets list of all registered users
+@app.route("/users", methods=['GET'])
+def users():
+    users = Table('users', metadata_obj, autoload_with=engine)
+    statement = alcsession.query(users).all()
+    allusers = json.dumps([row._asdict() for row in statement], indent=4)
+
+    if (session):
+        userinfo = session_info()
+        uid = userinfo['userinfo']['sub']
+        username = userinfo['userinfo']['name']
+        email = userinfo['userinfo']['email']
+
+        statement = users.insert().values(uid=uid,
+                                          username=username,
+                                          email=email)
+        alcsession.execute(statement)
+        alcsession.commit()
+
+        return jsonify(username)
 
 @app.route("/login")
 def login():
@@ -103,6 +123,7 @@ def login():
 def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
+    users()
     return redirect("/")
 
 @app.route("/logout")
@@ -178,7 +199,7 @@ def leaderboard():
 
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users)):
-        percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
+        percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
 
     for count in range(0, len(users)):
         indecies.append(count + 1)
@@ -186,6 +207,7 @@ def leaderboard():
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
+
     zippedreturn = zip(percentages, usernames, indecies)
     sortedreturn = sorted(zippedreturn, reverse=True)
 
@@ -221,29 +243,6 @@ def profile():
 
     else:
         return redirect("/login")
-
-
-
-# Gets list of all registered users
-@app.route("/users", methods=['GET'])
-def users():
-    users = Table('users', metadata_obj, autoload_with=engine)
-    statement = alcsession.query(users).all()
-    allusers = json.dumps([row._asdict() for row in statement], indent=4)
-
-    if (session):
-        userinfo = session_info()
-        uid = userinfo['userinfo']['sub']
-        username = userinfo['userinfo']['name']
-        email = userinfo['userinfo']['email']
-
-        statement = users.insert().values(uid=uid,
-                                          username=username,
-                                          email=email)
-        alcsession.execute(statement)
-        alcsession.commit()
-
-        return jsonify(username)
 
 # Ryan Edwards
 # this is where the ticker post request data goes
@@ -324,39 +323,16 @@ def portfolio():
         existsportfolio = alcsession.query(portfolios).filter_by(portfolioid = uid).all()
         print(existsportfolio)
 
-        """
-        Did not need this  for portfolios
-
-        if (not existsconn):
-            createconn = userstocks.insert().values(portfolioid=uid,
-                                                        uid=uid,
-                                                        wid=uid)
-            alcsession.execute(createconn)
-            alcsession.commit()
-
-        # creating a root entry in the portfolio
-        if (not existsportfolio):
-            stockid=0
-            initvalue=0
-
-            createportfolio = portfolios.insert().values(portfolioid=uid,
-                                                         stockid=stockid)
-            alcsession.execute(createportfolio)
-            alcsession.commit()
-        """
-
         # adding or removing portfolio items
         if (request.method == 'POST'):
 
-          ticker = str(request.form['ticker'])
-          print("This is the ticker returned", ticker)
+          ticker = request.form['ticker']
           status = request.form['changelist']
+          stockidexist = alcsession.query(stocks).filter_by(stockid = ticker).first()
           tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
 
           if (status == "Remove Portfolio"):
-              portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=tickerexist[0]).delete()
-              print(portfremove)
-              print("remove")
+              portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=stockidexist[0]).delete()
               alcsession.commit()
               return redirect("/portfolio")
 
@@ -379,21 +355,24 @@ def portfolio():
 
         if (request.method == 'GET'):
 
-          # cleaning up portfolio output
-          stockdata = {}
           data = []
           for row in existsportfolio:
-              stockdata['portfolioid'] = row.portfolioid
+              stockdata = {}
+              result = alcsession.query(stocks).filter_by(stockid=row.stockid).first()
               stockdata['stockid'] = row.stockid
+              stockdata['stockname'] = result[2]
               stockdata['buydate'] = row.buydate
+              stockdata['quantity'] = row.quantity
               stockdata['initvalue'] = row.initvalue
               print(stockdata)
 
               data.append(stockdata)
 
-          print(data)
+          print("THIS IS THE RESULT  DATA: ", data)
+          print("THIS IS THE SECOND DATA ELEMENT: ", data[1])
+          print("THIS IS THE SECOND ELEMENT OF DATA SECOND  ELEMENT: ", data[1]['stockname'])
           #return render_template("portfolio.html")
-          return render_template("portfolio.html", stockdata=stockdata)
+          return render_template("portfolio.html", data=data)
     else:
         return redirect("/login")
 
@@ -478,7 +457,7 @@ def watchlist():
         return redirect("/login")
 
 
-
+# Done
 @app.route("/sharing", methods=['POST', 'GET'])
 def share():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
@@ -528,7 +507,7 @@ def share():
         ).join(stocks, stocks.c.stockid == portfolios.c.stockid
         ).all()
 
-        alcsession.commit()
+        print(getTickers)
 
         # Get current amounts from api
         for i in range(0, len(users)):
@@ -576,7 +555,7 @@ def share():
         for stock in sqlInvested:
             if stock.portfolioid == uid:
                 userStocks.append(stock.name)
-                previousValues.append(stock.quantity * stock.initvalue)
+                previousValues.append(stock.initvalue / stock.quantity)
                 api_response = stockAPI(stock.ticker)  # Call api
                 init_value = 0
                 init_value = stock.quantity * api_response.get('open')
@@ -586,23 +565,44 @@ def share():
         # Find the largest difference between init values
         # We would then return the best performing stock, and how much percentage it is up
         percentage = 0
+        bestStock = ""
         for i in range(0, len(currentValues)):
             differences.append(float(currentValues[i]) - float(previousValues[i]))
 
-            if differences[i] > percentage:
+            if (differences[i] > percentage):
+                print("differences done")
                 bestStock = userStocks[i]
                 percentage = differences[i]
 
         # Returns the user's total portfolio return, leaderboard position, and the user's best performing
         # stock, and how much that stock is up (percentage)
         # Still need to add in profile image
-        returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos,
-                            'bestStock': bestStock, 'bestStockPercentage': percentage}
-        return returnValuesJson
+        #returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos,
+        #                    'bestStock': bestStock, 'bestStockPercentage': percentage}
+        #return returnValuesJson
+        print("creating file")
+        file = open("stats.html", "w")
+        data = f"""<html>
+                    <head>
+                    <title>Stats</title>
+                    </head>
+                    <body>
+
+                    <p>Total Portfolio Return: {totalPortfolioReturn}</p>
+                    <p>Leaderboard Position: {leaderboardPos}</p>
+                    <p>Best Stock: {bestStock}</p>
+                    <p>{bestStock} percentage: {percentage}%</p>
+
+                    </body>
+                    </html>
+                    """
+        file.write(data)
+        file.close()
+
+        return send_file("stats.html", as_attachment=True)
 
     else:
         return redirect("/login")
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
