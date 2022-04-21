@@ -18,7 +18,7 @@ from flask import send_file
 
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
