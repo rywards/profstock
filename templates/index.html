@@ -42,6 +42,17 @@
         </h2>
       </div>
         <div class="tickerinfo">
+          <!-- Form to change leaderboard range -->
+          <form action='/leaderboard' method="post">
+          <label for="Change range">Leaderboard Range: </label>
+            <select id="portfolios" name="daterange">
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <input type="submit" name="change" value="Change range"/>
+          </form>
               <table class = "topusers">
                 <thead>
                   <tr>
