@@ -253,22 +253,21 @@ def profile():
         uid = userinfo['userinfo']['sub']
         username = userinfo['userinfo']['name']
         email = userinfo['userinfo']['email']
+        picture = userinfo['userinfo']['picture']
+        print("PATH  TO PICTURE: ", picture)
 
         if (request.method == 'GET'):
             statement = alcsession.query(users).filter_by(uid=uid).first()
             return render_template("profile.html", username=username,
-                                                    email=email)
+                                                    email=email,
+                                                    picture=picture)
         if (request.method == 'POST'):
 
             username = request.form['username']
             email = request.form['email']
-            firstname = request.form['firstname']
-            lastname = request.form['lastname']
 
             statement = alcsession.query(users).filter_by(uid=uid).update(username=username,
-                                                                          email=email,
-                                                                          firstname=firstname,
-                                                                          lastname=lastname)
+                                                                          email=email)
             alcsession.execute(statement)
             alcsession.commit()
 
@@ -567,8 +566,8 @@ def watchlist():
 
 
 # Done
-@app.route("/sharing", methods=['POST', 'GET'])
-def share():
+@app.route("/snapshot", methods=['POST', 'GET'])
+def snapshot():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
@@ -582,6 +581,8 @@ def share():
         userinfo = json.loads(pretty)
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
+        picture = userinfo['userinfo']['picture']
+
         result = alcsession.query(users).filter_by(uid = uid).first()
         uid = result[0]
 
@@ -697,7 +698,8 @@ def share():
                     </head>
                     <body>
 
-                    <p>Total Portfolio Return: {totalPortfolioReturn}</p>
+                    <img src={picture}>
+                    <p style="font-weight:bold">Total Portfolio Return: {totalPortfolioReturn}</p>
                     <p>Leaderboard Position: {leaderboardPos}</p>
                     <p>Best Stock: {bestStock}</p>
                     <p>{bestStock} percentage: {percentage}%</p>

@@ -36,7 +36,6 @@
           </ul>
         </h2>
       </div>
-        <h1 class= "pfph1" id="root"></h1>
         <div id="info"></div>
         <script type="text/babel">
             class ProfileInfo extends React.Component {
@@ -56,30 +55,24 @@
                 render(){
                     return(
                         <div id='profileText'>
-                            <h2> Profile Info to Edit: </h2>
+                            <h2> Profile Information</h2>
                             <form action="/profile" method='post'>
                                 <hr></hr>
                                 <br/>
                                 <br/>
-                                <label for="username">Username:</label>
-                                <input type="text" name="username" placeholder="Enter new username"></input>
-                                <label for="email">Email:</label>
-                                <input type="text" name="email" placeholder="Enter new email"></input>
-                                <label for="firstname">First name:</label>
-                                <input type="text" name="firstname" placeholder="Enter new firstname"></input>
-                                <label for="lastname">Last name:</label>
-                                <input type="text" name="lastname" placeholder="Enter new lastname"></input>
+                                <label for="title"> Username: </label>
+                                <label for="username">{{username}}</label>
+                                <br></br>
+                                <label for="title"> Email: </label>
+                                <label for="email">{{email}}</label>
+
                                 <br/><br/>
                                 <hr></hr>
-
-                                <input type="submit" id="pfpbutton" name="button"></input>
                             </form>
                         </div>
                     )
                 }
             }
-
-            ReactDOM.render(<ProfileInfo />, document.getElementById('root'))
             ReactDOM.render(<ProfileSubInfo />, document.getElementById('info'))
         </script>
     </body>
