@@ -16,9 +16,11 @@ from sqlalchemy.sql import func
 
 from flask import send_file
 
+import datetime as DT
+
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -164,11 +166,29 @@ def leaderboard():
 
     alcsession.commit()
 
+    # Gets the date how ever long ago was selected
+    #if request.form['weekly']:
+    #   numDays = 7
+    #elif request.form['monthly']:
+    #    numDays = 30
+    #elif request.form['quarterly']:
+    #    numDays = 90
+    #elif request.form['yearly']:
+    #    numDays = 365
+       
+    today = DT.date.today()
+    date = today - DT.timedelta(days=7)
+
+    print(date)
+
     # Get current amounts from api
     for i in range(0, len(users)):
         total = 0
         for t in getTickers:
             if t.portfolioid == users[i]:
+                value_when_bought = stock_init_val(t.ticker, float(t.quantity), str(date))
+
+                # Gets current value of the stock
                 api_reponse = stockAPI(t.ticker)
 
                 print(api_reponse)
