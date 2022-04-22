@@ -249,14 +249,31 @@ def profile():
 
     if (session):
 
+        userinfo = session_info()
+        uid = userinfo['userinfo']['sub']
+        username = userinfo['userinfo']['name']
+        email = userinfo['userinfo']['email']
+
         if (request.method == 'GET'):
-            userinfo = session_info()
-            uid = userinfo['userinfo']['sub']
-            username = userinfo['userinfo']['name']
-            email = userinfo['userinfo']['email']
             statement = alcsession.query(users).filter_by(uid=uid).first()
             return render_template("profile.html", username=username,
                                                     email=email)
+        if (request.method == 'POST'):
+
+            username = request.form['username']
+            email = request.form['email']
+            firstname = request.form['firstname']
+            lastname = request.form['lastname']
+
+            statement = alcsession.query(users).filter_by(uid=uid).update(username=username,
+                                                                          email=email,
+                                                                          firstname=firstname,
+                                                                          lastname=lastname)
+            alcsession.execute(statement)
+            alcsession.commit()
+
+            return redirect("/profile")
+
 
     else:
         return redirect("/login")
