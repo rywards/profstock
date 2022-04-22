@@ -97,6 +97,14 @@ def stockAPI(ticker):
 
     return api_response
 
+def testDate(date_to_test):
+    api_response = stock_init_val('aapl', 1, date_to_test) # ticker and qty arent important for this
+
+    if (not api_response['open']):
+        return False
+    else:
+        return True
+
 
 @app.route("/login")
 def login():
@@ -124,6 +132,7 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
 
 # Andrew S. and Ryan Edwards
 # Returns the users with highest portfolio return percentage
@@ -167,19 +176,29 @@ def leaderboard():
     alcsession.commit()
 
     # Gets the date how ever long ago was selected
-    #if request.form['weekly']:
-    #   numDays = 7
-    #elif request.form['monthly']:
-    #    numDays = 30
-    #elif request.form['quarterly']:
-    #    numDays = 90
-    #elif request.form['yearly']:
-    #    numDays = 365
+    if request.form['weekly']:
+       numDays = 7
+    elif request.form['monthly']:
+        numDays = 30
+    elif request.form['quarterly']:
+        numDays = 90
+    elif request.form['yearly']:
+        numDays = 365
        
     today = DT.date.today()
-    date = today - DT.timedelta(days=7)
+    date = today - DT.timedelta(days=numDays)
+    goodDate = False
 
-    print(date)
+    while True:
+        goodDate = testDate(date)
+
+        if goodDate == False:
+            numDays += 1
+            date = today - DT.timedelta(days=numDays)
+        else:
+            break
+
+
 
     # Get current amounts from api
     for i in range(0, len(users)):
