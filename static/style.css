@@ -83,6 +83,10 @@ li a:hover {
     padding: 10px;
   }*/
 
+.tickerinfo {
+  font-weight: bold;
+}
+
   .tickerinfo thead,
 tfoot {
     background-color: #3f87a6;
@@ -138,13 +142,13 @@ th {
   float: left;
   padding: 5px;
   height: 100%;
-  
+
 }
 
 #pfpbutton{
   float: right;
   padding: 10px;
-  
+
 }
 
 #descriptionlabel{
@@ -160,10 +164,9 @@ th {
   padding: 10px;
   text-align: center;
   float: center;
-  
+
 }
 
 #pfpdisplayinfo{
   list-style-type: none;
 }
-

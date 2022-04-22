@@ -1,14 +1,41 @@
 <!DOCTYPE html>
-<html>  
-    <head>  
+<html>
+    <head>
         <title> Profile Page </title>
-        <!--when we deploy replace development.js with production.min.js-->    
+        <!--when we deploy replace development.js with production.min.js-->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    </head>  
+    </head>
+    <header>
+      <h1>ProfStock</h1>
+    </header>
     <body>
+      <div id="navbar">
+        <h2>
+          <ul>
+            <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+            <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
+            {% if session %}
+            <li><a href="{{url_for('profile')}}">Profile</a></li>
+            {% else %}
+            {% endif %}
+            <li style="float:right">
+              <form action="/stockinfo" method="post">
+                <input type="text" name="ticker" placeholder="Enter ticker"/>
+                <input type="submit" value="Search"/>
+              </form>
+            </li>
+            {% if session %}
+            <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
+            {% else %}
+            <li style="float: right"><a href="{{url_for('login')}}">Login</a></li>
+            {% endif %}
+          </ul>
+        </h2>
+      </div>
         <h1 class= "pfph1" id="root"></h1>
         <div id="info"></div>
         <script type="text/babel">
@@ -16,10 +43,10 @@
                 render(){
                     return(
                             <ul id="pfpdisplayinfo">
-                                <li id="ProfileName">{{session.userinfo.name}}</li>
-                                
-                                <li id="ProfileSubInfo">{{session.userinfo.email}}</li>
-                                
+                                <li id="ProfileName">{{username}}</li>
+
+                                <li id="ProfileSubInfo">{{email}}</li>
+
                             </ul>
                     )
                 }
@@ -64,6 +91,6 @@
 
             ReactDOM.render(<ProfileInfo />, document.getElementById('root'))
             ReactDOM.render(<ProfileSubInfo />, document.getElementById('info'))
-        </script>     
-    </body>  
-</html> 
+        </script>
+    </body>
+</html>
