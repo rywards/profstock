@@ -227,18 +227,22 @@ def leaderboard():
     for count in range(0, len(users)):
         indecies.append(count + 1)
 
+
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
-    zippedreturn = zip(percentages, usernames, indecies)
-    sortedreturn = sorted(zippedreturn, reverse=True)
+
+    percentages_sorted, usernames_sorted, indecies_sorted = map(list, zip(*sorted(zip(percentages, usernames, indecies), reverse=True)))
+
+    for count in range(0, len(indecies)):
+        indecies_sorted[count] = count + 1
+
+    return zip(percentages_sorted, usernames_sorted, indecies_sorted)
+
 
     # Returns json, in order, from largest percentage to smallest
     # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
     #return jsonify(sortedreturn)
-    print(sortedreturn[0][0])
-
-    return sortedreturn
 
 
 # route decorators
