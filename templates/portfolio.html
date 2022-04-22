@@ -31,15 +31,35 @@
             {% endif %}
             </ul>
           </h1>
-          <label for="stocks">Portfolios: </label>
-            <select name="stocks">
-                {% for stock in data %}
-                <option value="{{stock['stockname']}}">{{stock['stockname']}}</option>
-                {% endfor %}
-            </select>
 
             <div class="tickerinfo">
-              <table>
+              <!-- Form to change active portfolio -->
+              <form action='/portfolio' method="post">
+              <label for="Change Portfolio">Portfolios: </label>
+                <select id="portfolios" name="ticker">
+                    {% for name in portfolionames %}
+                    <option value="{{name}}">{{name}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" name="changelist" value="Change Portfolio"/>
+              </form>
+
+                <table>
+                    <thead>
+                      <tr>
+                        <th>Current total value</th>
+                        <th style="color: black; background-color: #e4f0f5;">${{curr_val}}</th>
+                      </tr>
+                    </thead>
+                    <thead>
+                      <tr>
+                        <th>Active Portfolio</th>
+                        <th style="color: black; background-color: #e4f0f5;">{{activeportfolio}}</th>
+                      </tr>
+                    </thead>
+
+                </table>
+              <table align="left">
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -53,7 +73,7 @@
                       <tr>
                         <td>{{stock['stockname']}}</td>
                         <td>{{stock['quantity']}}</td>
-                        <td>{{stock['initvalue']}}</td>
+                        <td>${{stock['initvalue']}}</td>
                         <td>{{stock['buydate']}}</td>
                         <td>
                           <form action="/portfolio" method="post">
@@ -64,11 +84,9 @@
 
                       </tr>
                     {% endfor %}
-                  </form>
                   </tbody>
               </table>
             </div>
-
 
     </body>
 </html>

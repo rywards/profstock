@@ -37,14 +37,15 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
-# function returns current user's information in JSON format
+# Function returns current user's information in JSON format.
 def session_info():
     sessioninfo = session.get('user')
     pretty=json.dumps(sessioninfo, indent=4)
     userinfo = json.loads(pretty)
     return userinfo
 
-# gets total value of stock
+# Function to get the initial purchase amount of a stock
+# based on the buydate.
 def stock_init_val(ticker, amount, buydate):
 
     print(ticker)
@@ -62,6 +63,22 @@ def stock_init_val(ticker, amount, buydate):
     buydate_value = buydate_info['close'] * amount
 
     return buydate_value
+
+# Function to get the current value of a portfolio holding
+def stock_curr_val(ticker, amount):
+    # getting the most recent stock data
+    print(ticker)
+    params = {
+    'access_key': 'b690ef1a94c38681861a3a78272a9c98'
+    }
+    route = 'http://api.marketstack.com/v1/tickers/' + ticker + '/eod/latest'
+
+    api_current = requests.get(route, params)
+    curr_info = api_current.json()
+
+    curr_val = curr_info['close'] * amount
+
+    return curr_val
 
 # function for calling api
 def stockAPI(ticker):
@@ -321,15 +338,50 @@ def portfolio():
         # get portfolio from sqlalchemy query
         existsconn = alcsession.query(userstocks).filter_by(portfolioid = uid).first()
         existsportfolio = alcsession.query(portfolios).filter_by(portfolioid = uid).all()
-        print(existsportfolio)
 
-        # adding or removing portfolio items
+        # Keeping track of portfolios for users
+        # Sets the active portfolio to the first index of portfolionames
+        portfolionames = []
+        for row in existsportfolio:
+            portfolionames.append(row[5])
+        try:
+            activeportfolio = portfolionames[0]
+        except:
+            activeportfolio = ""
+
+        # If the request type is a post request, go here.
         if (request.method == 'POST'):
 
           ticker = request.form['ticker']
           status = request.form['changelist']
           stockidexist = alcsession.query(stocks).filter_by(stockid = ticker).first()
           tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
+
+          if (status == "Change Portfolio"):
+              activeportfolio = ticker
+              getname = alcsession.query(portfolios).filter_by(portfolioid=uid,
+                                                                name=ticker).all()
+              data = []
+              curr_val = 0
+              for row in getname:
+                  stockdata = {}
+                  result = alcsession.query(stocks).filter_by(stockid=row.stockid).first()
+                  stockdata['stockid'] = row.stockid
+                  stockdata['stockname'] = result[2]
+                  stockdata['buydate'] = row.buydate
+                  stockdata['quantity'] = row.quantity
+                  stockdata['initvalue'] = row.initvalue
+                  stockdata['portname'] = row.name
+                  activeportfolio = row.name
+
+                  curr_val += stock_curr_val(result[1], row.quantity)
+
+                  data.append(stockdata)
+              #return render_template("portfolio.html")
+              return render_template("portfolio.html", data=data,
+                                                        curr_val=curr_val,
+                                                        portfolionames=portfolionames,
+                                                        activeportfolio=activeportfolio)
 
           if (status == "Remove Portfolio"):
               try:
@@ -347,40 +399,49 @@ def portfolio():
 
             # buydate must be strictly in Y-m-d format.
             # ex. 2015-12-25 (christmas 2015)
+
+            # Need to make sure input is correct or will get a bad request
             ticker = str(ticker)
             buydate = str(request.form['buydate'])
             quantity = int(request.form['quantity'])
+            portname = request.form['portname']
             initvalue = stock_init_val(ticker, quantity, buydate)
             portfadd = portfolios.insert().values(portfolioid=uid,
                                                  stockid=tickerexist[0],
                                                  buydate=buydate,
                                                  quantity=quantity,
-                                                 initvalue=initvalue)
+                                                 initvalue=initvalue,
+                                                 name=portname)
             alcsession.execute(portfadd)
             alcsession.commit()
             return redirect("/portfolio")
 
         if (request.method == 'GET'):
-
           data = []
+          curr_val = 0
           for row in existsportfolio:
               stockdata = {}
+              portname = alcsession.query(portfolios).filter_by(stockid=row.stockid, name=activeportfolio).first()
               result = alcsession.query(stocks).filter_by(stockid=row.stockid).first()
               stockdata['stockid'] = row.stockid
               stockdata['stockname'] = result[2]
               stockdata['buydate'] = row.buydate
               stockdata['quantity'] = row.quantity
               stockdata['initvalue'] = row.initvalue
-              print(stockdata)
+              curr_val += stock_curr_val(result[1], row.quantity)
+              print(curr_val)
 
               data.append(stockdata)
           #return render_template("portfolio.html")
-          return render_template("portfolio.html", data=data)
+          return render_template("portfolio.html", data=data,
+                                                    curr_val=curr_val,
+                                                    activeportfolio=activeportfolio,
+                                                    portfolionames=portfolionames)
     else:
         return redirect("/login")
 
 
-# get watchlist data for user
+# Handles call to watchlist endpoint
 @app.route("/watchlist", methods=['GET','POST'])
 def watchlist():
 
@@ -390,46 +451,47 @@ def watchlist():
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
     if (session):
-
         userinfo = session_info()
         uid = userinfo['userinfo']['sub']
         name = userinfo['userinfo']['name']
         result = alcsession.query(users).filter_by(uid = uid).first()
         uid = result[0]
 
-        existswatch = alcsession.query(watchlists).filter_by(wid = uid).first()
-        if (not existswatch):
-            createconn = watchlists.insert().values(uid=uid,
-                                                    wid=uid,
-                                                    stockid=0)
-            alcsession.execute(createconn)
-            alcsession.commit()
 
         existswatch = alcsession.query(watchlists).filter_by(wid = uid).all()
 
-        watchlistdata = {}
+        # Keeping track of watchlists for users
+        # sets active watchlist as first index
+        watchlistnames = []
+        for row  in existswatch:
+            watchlistnames.append(row[3])
+
+        try:
+            activewatchlist = watchlistnames[0]
+        except:
+            activewatchlist = ""
+
 
         # this is used when the watchlist is being retrieved
         if (request.method == 'GET'):
-            ids = []
-            stocknames = []
+
+            data = []
             for row in existswatch:
-                jsonport = json.dumps(row._asdict(), indent=4)
-                jsonport = json.loads(jsonport)
-                watchlistdata['stockid'] = jsonport['stockid']
-                print(watchlistdata)
-                ids.append(watchlistdata['stockid'])
-
-            for e in range(len(ids)):
+                watchlistdata = {}
                 try:
-                    getname = alcsession.query(stocks).filter_by(stockid=ids[e]).first()
-                    stocknames.append(getname[2])
-
-                except TypeError:
+                    result = alcsession.query(watchlists).filter_by(stockid=row.stockid, name=activewatchlist).first()
+                    stockname = alcsession.query(stocks).filter_by(stockid=row.stockid).first()
+                    watchlistdata['stockid'] = result.stockid
+                    watchlistdata['stockname'] = stockname[2]
+                    stockeod = stockAPI(stockname[1])
+                    watchlistdata['currprice'] = stockeod['close']
+                    data.append(watchlistdata)
+                except:
                     continue
 
 
-            return render_template("WatchList.html",stocknames=stocknames)
+            return render_template("WatchList.html",data=data,
+                                                    watchlistnames=watchlistnames)
 
         # this is used when a stock is being added to the watchlist
         if (request.method == 'POST'):
@@ -438,23 +500,50 @@ def watchlist():
             status = request.form['changelist']
 
             tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
+            stockidexist = alcsession.query(stocks).filter_by(stockid = ticker).first()
+
+            # Sets the active watchlist to the ticker value
+            # Uses this to find the new active watchlist.
+            if (status == "Change Watchlist"):
+                activewatchlist = ticker
+                getname = alcsession.query(watchlists).filter_by(wid=uid,
+                                                                  name=ticker).all()
+                data = []
+                for row in getname:
+                    watchlistdata = {}
+                    result = alcsession.query(watchlists).filter_by(stockid=row.stockid, name=activewatchlist).first()
+                    stockname = alcsession.query(stocks).filter_by(stockid=row.stockid).first()
+                    watchlistdata['stockid'] = row.stockid
+                    watchlistdata['stockname'] = stockname[2]
+                    stockeod = stockAPI(stockname[1])
+                    watchlistdata['currprice'] = stockeod['close']
+                    data.append(watchlistdata)
+                #return render_template("portfolio.html")
+                return render_template("WatchList.html", data=data,
+                                                          watchlistnames=watchlistnames,
+                                                          activewatchlist=activewatchlist)
 
             if (status == "Remove Watchlist"):
-              watchlistremove = alcsession.query(watchlists).filter_by(uid=uid, stockid=tickerexist[0]).delete()
-              print(watchlistremove)
-              print("remove")
-              alcsession.commit()
-              return redirect("/watchlist")
+                try:
+                    portfremove = alcsession.query(watchlists).filter_by(wid=uid, stockid=tickerexist[0]).delete()
+                    alcsession.commit()
+                    return redirect("/watchlist")
+                except TypeError:
+                    portfremove = alcsession.query(watchlists).filter_by(wid=uid, stockid=stockidexist[0]).delete()
+                    alcsession.commit()
+                    return redirect("/watchlist")
 
-            print(tickerexist[0])
-            watchlistinsert = watchlists.insert().values(uid=uid,
+            if (status == "Add Watchlist"):
+                watchname = request.form['watchname']
+                watchlistinsert = watchlists.insert().values(uid=uid,
                                                    wid=uid,
-                                                   stockid=tickerexist[0])
-            alcsession.execute(watchlistinsert)
-            alcsession.commit()
+                                                   stockid=tickerexist[0],
+                                                   name=watchname)
+                alcsession.execute(watchlistinsert)
+                alcsession.commit()
+                return redirect("/watchlist")
 
-            #return render_template("WatchList.html",tickerexist=tickerexist)
-            return jsonify(tickerexist)
+            return render_template("WatchList.html",tickerexist=tickerexist)
 
     else:
         return redirect("/login")

@@ -34,14 +34,41 @@
     </h2>
   </div>
 
-      <table border="1">
-        <th>Watchlist</th>
+  <div class="tickerinfo">
+    <!-- Form to change active portfolio -->
+    <form action='/watchlist' method="post">
+    <label for="Change Watchlist">Watchlists: </label>
+      <select id="watchlists" name="ticker">
+          {% for name in watchlistnames %}
+          <option value="{{name}}">{{name}}</option>
+          {% endfor %}
+      </select>
+      <input type="submit" name="changelist" value="Change Watchlist"/>
+    </form>
+    <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Last Price</th>
+          </tr>
+        </thead>
         <tbody>
-          {% for name in stocknames %}
-          <tr><td> {{name}} </td></tr>
+          {% for stock in data %}
+            <tr>
+              <td>{{stock['stockname']}}</td>
+              <td>{{stock['currprice']}}</td>
+              <td>
+                <form action="/watchlist" method="post">
+                  <input type="hidden" name="ticker" value="{{stock['stockid']}}">
+                  <input type="submit" name="changelist" value="Remove Watchlist">
+                </form>
+              </td>
+
+            </tr>
           {% endfor %}
         </tbody>
-        </table>
+    </table>
+  </div>
 <footer>
     <p></p>
 </footer>

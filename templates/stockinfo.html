@@ -42,26 +42,6 @@
             <thead>
                 <tr>
                     <th>{{ticker}}</th>
-                    <th>
-                        <form action="/watchlist" method="post">
-                            <input type="hidden" name="ticker" value="{{ticker}}">
-                            <input type="submit" name="changelist" value="Add Watchlist">
-                        </form>
-                        <form action="/watchlist" method="post">
-                            <input type="hidden" name="ticker" value="{{ticker}}">
-                            <input type="submit" name="changelist" value="Remove Watchlist">
-                        </form>
-                        <form action="/portfolio" method="post">
-                            <input type="hidden" name="ticker" value="{{ticker}}">
-                            <input type="submit" name="changelist" value="Add Portfolio">
-                            <input type="text" name="quantity" placeholder="Enter quantity">
-                            <input type="text" name="buydate" placeholder="Enter buydate (form yyyy-mm-dd)">
-                        </form>
-                        <form action="/portfolio" method="post">
-                            <input type="hidden" name="ticker" value="{{ticker}}">
-                            <input type="submit" name="changelist" value="Remove Portfolio">
-                        </form>
-                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -97,6 +77,54 @@
         </table>
 
     </div>
+
+    <!-- This table has information on adding a stock to portfolios/watchlists -->
+{% if session %}
+    <div class="tickerinfo">
+      <table>
+        <thead>
+          <tr>
+            <th>Stock Actions</th>
+            <th>Watchlist</th>
+            <th>Portfolio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <td></td>
+              <td>
+                    <form action="/watchlist" method="post">
+                        <input type="hidden" name="ticker" value="{{ticker}}">
+                        <input type="submit" name="changelist" value="Add Watchlist">
+                        <input type="text" name="watchname" placeholder="Watchlist name">
+                    </form>
+
+                    <form action="/watchlist" method="post">
+                        <input type="hidden" name="ticker" value="{{ticker}}">
+                        <input type="submit" name="changelist" value="Remove Watchlist">
+                    </form>
+                  </td>
+
+                  <td>
+                    <form action="/portfolio" method="post">
+                        <input type="hidden" name="ticker" value="{{ticker}}">
+                        <input type="submit" name="changelist" value="Add Portfolio">
+                        <input type="text" name="quantity" placeholder="Enter quantity">
+                        <input type="text" name="buydate" placeholder="Enter buydate (form yyyy-mm-dd)">
+                        <input type="text" name="portname" placeholder="Portfolio name">
+                    </form>
+
+                    <form action="/portfolio" method="post">
+                        <input type="hidden" name="ticker" value="{{ticker}}">
+                        <input type="submit" name="changelist" value="Remove Portfolio">
+                    </form>
+                    <td>
+                  </tr>
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+  {% endif %}
+
     <br></br>
 <footer>
     <p></p>
