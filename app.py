@@ -195,13 +195,15 @@ def leaderboard():
                 init_value = 0
                 init_value = t.quantity * api_reponse.get('open')
 
-                total += init_value
+                diff = init_value - value_when_bought
+
+                total += diff
 
         current_amounts.append(total)
 
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users)):
-        percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
+        percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
 
     for count in range(0, len(users)):
         indecies.append(count + 1)
