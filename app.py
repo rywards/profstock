@@ -20,7 +20,7 @@ import datetime as DT
 
 
 # initializing database connection
-engine = create_engine("mysql+mysqldb://root:wwcVs5kt@localhost/profstock", echo=True, future=True)
+engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
@@ -222,7 +222,8 @@ def leaderboard():
 
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users)):
-        percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
+        #percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
+        percentages.append( ((float(current_amounts[j]) - float(invested[j])) / invested[j]) * 100)
 
     for count in range(0, len(users)):
         indecies.append(count + 1)
@@ -237,12 +238,9 @@ def leaderboard():
     for count in range(0, len(indecies)):
         indecies_sorted[count] = count + 1
 
-    return zip(percentages_sorted, usernames_sorted, indecies_sorted)
+    sortedreturn = zip(percentages_sorted, usernames_sorted, indecies_sorted)
 
-
-    # Returns json, in order, from largest percentage to smallest
-    # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
-    #return jsonify(sortedreturn)
+    return sortedreturn
 
 
 # route decorators
