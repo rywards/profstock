@@ -177,7 +177,7 @@ def leaderboard():
 
     # Gets the date how ever long ago was selected
     if request.form['weekly']:
-       numDays = 7
+      numDays = 7
     elif request.form['monthly']:
         numDays = 30
     elif request.form['quarterly']:
