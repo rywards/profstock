@@ -175,6 +175,7 @@ def leaderboard():
 
     alcsession.commit()
 
+    '''
     # Gets the date how ever long ago was selected
     if request.form['weekly']:
       numDays = 7
@@ -197,8 +198,9 @@ def leaderboard():
             date = today - DT.timedelta(days=numDays)
         else:
             break
+    '''
 
-
+    date = DT.date.today() - DT.timedelta(days=7) # This line is just for testing purposes
 
     # Get current amounts from api
     for i in range(0, len(users)):
@@ -223,7 +225,7 @@ def leaderboard():
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users)):
         #percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
-        percentages.append( ((float(current_amounts[j]) - float(invested[j])) / invested[j]) * 100)
+        percentages.append( ((float(current_amounts[j]) - float(invested[j])) / float(invested[j])) * 100)
 
     for count in range(0, len(users)):
         indecies.append(count + 1)
@@ -649,6 +651,12 @@ def share():
 
     else:
         return redirect("/login")
+
+
+# Displays the 500.html error page, to actually handle errors
+@app.errorhandler(500)
+def page_not_found(e):
+    return(render_template("500.html"))
 
 
 if __name__ == "__main__":
