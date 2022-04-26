@@ -11,8 +11,12 @@
         <h1>
             <ul>
                 <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
-              <li><a href="portfolio">Portfolio</a></li>
-              <li><a href="watchlist">Watchlist</a></li>
+              <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+              <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
+              {% if session %}
+              <li><a href="{{url_for('profile')}}">Profile</a></li>
+              {% else %}
+              {% endif %}
               <li style="float:right">
                 <!-- send post request with stock ticker-->
                 <form action="/stockinfo" method="post">
@@ -27,44 +31,62 @@
             {% endif %}
             </ul>
           </h1>
-          <label for="stocks">Stocks</label>
-            <select name="stocks">
-                {%for data in stockdata%}
-                <option value="{{data}}">{{data}}</option>
-                {%endfor%}
-            </select>
 
             <div class="tickerinfo">
+              <!-- Form to change active portfolio -->
+              <form action='/portfolio' method="post">
+              <label for="Change Portfolio">Portfolios: </label>
+                <select id="portfolios" name="ticker">
+                    {% for name in portfolionames %}
+                    <option value="{{name}}">{{name}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" name="changelist" value="Change Portfolio"/>
+              </form>
 
-              <table>
-                  <thead>
+                <table>
+                    <thead>
                       <tr>
-                          <th>{{symbol}}</th>
-                          <th>
-                              <form action="/addstock" method="post">
-                                  <input type="hidden" name="ticker" value="{{symbol}}">
-                              </form>
-                          </th>
+                        <th>Current total value</th>
+                        <th style="color: black; background-color: #e4f0f5;">${{curr_val}}</th>
                       </tr>
+                    </thead>
+                    <thead>
+                      <tr>
+                        <th>Active Portfolio</th>
+                        <th style="color: black; background-color: #e4f0f5;">{{activeportfolio}}</th>
+                      </tr>
+                    </thead>
+
+                </table>
+              <table align="left">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Quantity</th>
+                      <th>Inital Value</th>
+                      <th>Buy Date</th>
+                    </tr>
                   </thead>
                   <tbody>
-                      
+                    {% for stock in data %}
                       <tr>
-                        <th scope="row">quantity</th>
-                        <td>{{quantity}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Portfolio info</th>
-                        <td>{{stockdata}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">buy date</th>
-                        <td>{{buydate}}</td>
-                    </tr>
+                        <td>{{stock['stockname']}}</td>
+                        <td>{{stock['quantity']}}</td>
+                        <td>${{stock['initvalue']}}</td>
+                        <td>{{stock['buydate']}}</td>
+                        <td>
+                          <form action="/portfolio" method="post">
+                            <input type="hidden" name="ticker" value="{{stock['stockid']}}">
+                            <input type="submit" name="changelist" value="Remove Portfolio">
+                          </form>
+                        </td>
+
+                      </tr>
+                    {% endfor %}
                   </tbody>
               </table>
-            <template>
-                <option value=""></option>
-            </template>
+            </div>
+
     </body>
 </html>
