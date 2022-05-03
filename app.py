@@ -139,13 +139,13 @@ def logout():
 @app.route("/leaderboard", methods=['GET'])
 def leaderboard():
 
+    # Tables that will be accessed with sql alchemy queries
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
 
-    # Query to get portfolio id | sum(total invested) for each user
-
+    # The results of the alcsession.query() will be stored in the sqlInvested variable
     sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).group_by(portfolios.c.portfolioid
@@ -160,7 +160,7 @@ def leaderboard():
     percentages = [] # Holds percentage for each user up/down
     usernames = [] # Holds usernames
     tickers = [] # Holds a list of tickers for each user
-    indecies = [] # Indexs for return
+    indecies = [] # Indecies for return
 
     # Saves the returned data in the arrays
     for user in sqlInvested:
@@ -212,7 +212,6 @@ def leaderboard():
                 # Gets current value of the stock
                 api_reponse = stockAPI(t.ticker)
 
-                print(api_reponse)
                 init_value = 0
                 init_value = t.quantity * api_reponse.get('open')
 
@@ -222,9 +221,8 @@ def leaderboard():
 
         current_amounts.append(total)
 
-    # Calculate ((current prices / total invested) - 1) * 100 for each user
+    # Calculate percentage up/down for each user
     for j in range(0, len(users)):
-        #percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
         percentages.append( ((float(current_amounts[j]) - float(invested[j])) / float(invested[j])) * 100)
 
     for count in range(0, len(users)):
@@ -234,7 +232,6 @@ def leaderboard():
     # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
-
     percentages_sorted, usernames_sorted, indecies_sorted = map(list, zip(*sorted(zip(percentages, usernames, indecies), reverse=True)))
 
     for count in range(0, len(indecies)):
@@ -613,7 +610,6 @@ def share():
 
         # ----------------------------------------------------------------------
         # This part is for finding best performing stock
-        # Query to get portfolio id | sum(total invested) for each user
         sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name, portfolios.c.initvalue
         ).join(stocks, stocks.c.stockid == portfolios.c.stockid
         ).all()
@@ -644,7 +640,6 @@ def share():
 
         # Returns the user's total portfolio return, leaderboard position, and the user's best performing
         # stock, and how much that stock is up (percentage)
-        # Still need to add in profile image
         returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos,
                             'bestStock': bestStock, 'bestStockPercentage': percentage}
         return returnValuesJson
