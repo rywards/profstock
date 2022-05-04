@@ -159,17 +159,26 @@ def logout():
     )
 
 # Andrew S. and Ryan Edwards
-# Returns the users with highest portfolio return percentage
+# When this endpoint is hit, a zipped return of 3 lists is returned
+# The 3 lists contain the usernames, portfolio return percentage, and leaderboard position
+# of all of the users in the database
+# The usernames are found in the first sqlalchemy query, and stored in the users list
+# The return percentages are then found by taking the total_invested field from the first sqlalchemy
+# query, and comparing it to the current_amounts. The result of this is stored in the percentages list.
+# The indecies are found by generating a list of indecies for how many people are in the list, and 
+# then simply sorting the list later.
+# Once the users, percentages, and indecies lists are filled with the data, all 3 are sorted in the same way.
+# The 3 sorted lists are then zipped, so all 3 can be returned to be displayed on the home page.
 @app.route("/leaderboard", methods=['GET'])
 def leaderboard():
 
+    # These are the 3 tables the sqlalchemy queries will need to use
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
 
-    # Query to get portfolio id | sum(total invested) for each user
-
+    # This query gets the primary key, username, and the total amount invested for each user in the database
     sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
     ).join(users, users.c.uid == portfolios.c.portfolioid
     ).group_by(portfolios.c.portfolioid
@@ -178,6 +187,7 @@ def leaderboard():
     alcsession.commit()
 
 
+    # These are all of the lists where data will be stored
     users = [] # Array to hold the users from the database
     invested = [] # Array to hold total amount invested by each user
     current_amounts = [] # Array to hold current amount user's stocks are worth
@@ -186,20 +196,27 @@ def leaderboard():
     tickers = [] # Holds a list of tickers for each user
     indecies = [] # Indexs for return
 
-    # Saves the returned data in the arrays
+    # Saves the returned data from the first sqlachemy query in the lists
     for user in sqlInvested:
         users.append(user.portfolioid)
         usernames.append(user.username)
         invested.append(user.total_invested)
 
 
+    # This query gets the primary key for who bought each stock, and then how much of the stock was bought.
+    # It also gets the ticker, so we can use it to find the current amount of the stock now.
     getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
     ).join(stocks, stocks.c.stockid == portfolios.c.stockid
     ).all()
 
     alcsession.commit()
 
-    # Get current amounts from api
+    # Goes through all of the tickers that we just got from the previous query.
+    # Goes through each user stored in the users list earlier.
+    # If the primary key matches the user we are current searching for, we hit the api
+    # to find the current price of the stock, and multiply it by the original quantity.
+    # The total is then added onto the total variable, and at the end, the total
+    # is stored in the current_amounts list.
     for i in range(0, len(users)):
         total = 0
         for t in getTickers:
@@ -216,24 +233,30 @@ def leaderboard():
 
 
 
-    # Calculate percentage up/down for each user
+    # Takes the current amount of the stocks - the total cost of the stocks to begin with, and divides it by
+    # the total amount initially. Multiplying it by 100 then gives us the percentage up/down for each user
     for j in range(0, len(users)):
         percentages.append( ((float(current_amounts[j]) - float(invested[j])) / float(invested[j])) * 100)
 
+    # Simply generates a list of how many indecies we need
     for count in range(0, len(users)):
         indecies.append(count + 1)
 
 
-    # Sort and return json to front end
     # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
     # This helped me sort 2 lists the same way
+    # Sorts the 3 lists that we need to return the same way. Now, the 3 lists that were created are all sorted the same way,
+    # in order, and can be returned
     percentages_sorted, usernames_sorted, indecies_sorted = map(list, zip(*sorted(zip(percentages, usernames, indecies), reverse=True)))
 
+    # This actually sorts the indecies list, so now each person has the correct index for leaderboard position
     for count in range(0, len(indecies)):
         indecies_sorted[count] = count + 1
 
+    # Zips all 3 lists so they can be returned to the front end
     sortedreturn = zip(percentages_sorted, usernames_sorted, indecies_sorted)
 
+    # Returns the 3 lists
     return sortedreturn
 
     '''
@@ -588,9 +611,13 @@ def watchlist():
         return redirect("/login")
 
 
-# Done
+# Andrew, Ryan
+# When this endpoint is hit, an html file is returned that contains a mini snapshot of the current
+# user's profile. It contains the profile's image, the user's total portfolio return percentage up/down,
+# the user's best performing stock, and what percentage that stock is up/down.
 @app.route("/snapshot", methods=['POST', 'GET'])
 def snapshot():
+    # These are the 3 tables the sqlalchemy queries will need to use
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     users = Table('users', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
@@ -610,7 +637,7 @@ def snapshot():
         uid = result[0]
 
 
-        # Query to get portfolio id | sum(total invested) for each user
+        # This query gets the primary key, username, and the total amount invested for each user in the database
         sqlInvested = alcsession.query(portfolios.c.portfolioid, users.c.username, func.sum(portfolios.c.quantity * portfolios.c.initvalue).label('total_invested')
         ).join(users, users.c.uid == portfolios.c.portfolioid
         ).group_by(portfolios.c.portfolioid
@@ -618,7 +645,7 @@ def snapshot():
 
         alcsession.commit()
 
-
+        # These are all of the lists where data will be stored
         users = [] # Array to hold the users from the database
         invested = [] # Array to hold total amount invested by each user
         current_amounts = [] # Array to hold current amount user's stocks are worth
@@ -636,13 +663,20 @@ def snapshot():
             usernames.append(user.username)
             invested.append(user.total_invested)
 
+        # This query gets the primary key for who bought each stock, and then how much of the stock was bought.
+        # It also gets the ticker, so we can use it to find the current amount of the stock now.
         getTickers = alcsession.query(portfolios.c.portfolioid, portfolios.c.quantity, stocks.c.ticker
         ).join(stocks, stocks.c.stockid == portfolios.c.stockid
         ).all()
 
         print(getTickers)
 
-        # Get current amounts from api
+        # Goes through all of the tickers that we just got from the previous query.
+        # Goes through each user stored in the users list earlier.
+        # If the primary key matches the user we are current searching for, we hit the api
+        # to find the current price of the stock, and multiply it by the original quantity.
+        # The total is then added onto the total variable, and at the end, the total
+        # is stored in the current_amounts list.
         for i in range(0, len(users)):
             total = 0
             for t in getTickers:
@@ -656,11 +690,10 @@ def snapshot():
 
             current_amounts.append(total)
 
-
-
-        # Calculate ((current prices / total invested) - 1) * 100 for each user
+        # Takes the current amount of the stocks - the total cost of the stocks to begin with, and divides it by
+        # the total amount initially. Multiplying it by 100 then gives us the percentage up/down for each user
         for j in range(0, len(users)):
-            percentages.append((( float(current_amounts[j]) / float(invested[j])) - 1) * 100)
+            percentages.append( ((float(current_amounts[j]) - float(invested[j])) / float(invested[j])) * 100)
 
         # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
         # Sort both lists in the same way
@@ -676,7 +709,7 @@ def snapshot():
 
         # ----------------------------------------------------------------------
         # This part is for finding best performing stock
-        # Query to get portfolio id | sum(total invested) for each user
+        # Query to get portfolio id, and stock info for all stocks in db
         sqlInvested = alcsession.query(portfolios.c.portfolioid, stocks.c.ticker, portfolios.c.quantity, stocks.c.name, portfolios.c.initvalue
         ).join(stocks, stocks.c.stockid == portfolios.c.stockid
         ).all()
@@ -684,7 +717,7 @@ def snapshot():
         alcsession.commit()
 
 
-        # Get current init values for each stock
+        # Get current init_values for all stocks
         for stock in sqlInvested:
             if stock.portfolioid == uid:
                 userStocks.append(stock.name)
@@ -695,7 +728,7 @@ def snapshot():
                 currentValues.append(init_value)
 
 
-        # Find the largest difference between init values
+        # Find the largest difference between init values (then vs. now)
         # We would then return the best performing stock, and how much percentage it is up
         percentage = 0
         bestStock = ""
@@ -707,12 +740,8 @@ def snapshot():
                 bestStock = userStocks[i]
                 percentage = differences[i]
 
-        # Returns the user's total portfolio return, leaderboard position, and the user's best performing
-        # stock, and how much that stock is up (percentage)
-        # Still need to add in profile image
-        #returnValuesJson = {'totalPortfolio' : totalPortfolioReturn, 'leaderboardPosition': leaderboardPos,
-        #                    'bestStock': bestStock, 'bestStockPercentage': percentage}
-        #return returnValuesJson
+
+        # Returns the file
         print("creating file")
         file = open("stats.html", "w")
         data = f"""<html>
