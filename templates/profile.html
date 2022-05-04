@@ -1,28 +1,53 @@
 <!--NO LONGER IN USE-->
 
 <!DOCTYPE html>
-<html>  
-    <head>  
+<html>
+    <head>
         <title> Profile Page </title>
-        <!--when we deploy replace development.js with production.min.js-->    
+        <!--when we deploy replace development.js with production.min.js-->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    </head>  
+    </head>
+    <header>
+      <h1>ProfStock</h1>
+    </header>
     <body>
-        <h1 class= "pfph1" id="root"></h1>
+      <div id="navbar">
+        <h2>
+          <ul>
+            <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+            <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
+            {% if session %}
+            <li><a href="{{url_for('profile')}}">Profile</a></li>
+            {% else %}
+            {% endif %}
+            <li style="float:right">
+              <form action="/stockinfo" method="post">
+                <input type="text" name="ticker" placeholder="Enter ticker"/>
+                <input type="submit" value="Search"/>
+              </form>
+            </li>
+            {% if session %}
+            <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
+            {% else %}
+            <li style="float: right"><a href="{{url_for('login')}}">Login</a></li>
+            {% endif %}
+          </ul>
+        </h2>
+      </div>
         <div id="info"></div>
         <script type="text/babel">
             class ProfileInfo extends React.Component {
                 render(){
                     return(
                             <ul id="pfpdisplayinfo">
-                                 
-                                <li id="ProfileName">{{session.userinfo.name}}</li>
-                                
-                                <li id="ProfileSubInfo">{{session.userinfo.email}}</li>
-                                
+
+                                <li id="ProfileName">{{username}}</li>
+
+                                <li id="ProfileSubInfo">{{email}}</li>
                             </ul>
                     )
                 }
@@ -32,41 +57,25 @@
                 render(){
                     return(
                         <div id='profileText'>
-                            <h2> Profile Info to Edit: </h2>
-                            <form action="/editUser" method='post'>
+                            <h2> Profile Information</h2>
+                            <form action="/profile" method='post'>
                                 <hr></hr>
                                 <br/>
                                 <br/>
-                                <label for="firstname">First name:</label>
-                                <input type="text" name="firstname"></input>
-                                <label for="lastname">Last name:</label>
-                                <input type="text" name="lastname"></input>
+                                <label for="title"> Username: </label>
+                                <label for="username">{{username}}</label>
+                                <br></br>
+                                <label for="title"> Email: </label>
+                                <label for="email">{{email}}</label>
+
                                 <br/><br/>
                                 <hr></hr>
-                                <label for="email">Email:</label>
-                                <input type="email" id="email" name="email"></input>
-                                <br/><br/>
-                                <hr></hr>
-                                <label for="description" id="descriptionlabel">Description:</label><br/><br/>
-                                <textarea rows='5' cols='60' name='description'></textarea>
-                                <br/><br/>
-                                <hr></hr>
-                                <label for="number" id="number">Phone number:</label><br/>
-                                <input type="number" id="number" name="number" min="100000000"></input>
-                                <br/><br/>
-                                <hr></hr>
-                                <label for="location" >Location:</label><br/>
-                                <input type="text" name="location"></input>
-                                <br/><br/>
-                                <input type="submit" id="pfpbutton" name="button"></input>
                             </form>
                         </div>
                     )
                 }
             }
-
-            ReactDOM.render(<ProfileInfo />, document.getElementById('root'))
             ReactDOM.render(<ProfileSubInfo />, document.getElementById('info'))
-        </script>     
-    </body>  
-</html> 
+        </script>
+    </body>
+</html>
