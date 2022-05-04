@@ -214,6 +214,29 @@ def leaderboard():
 
         current_amounts.append(total)
 
+
+
+    # Calculate percentage up/down for each user
+    for j in range(0, len(users)):
+        percentages.append( ((float(current_amounts[j]) - float(invested[j])) / float(invested[j])) * 100)
+
+    for count in range(0, len(users)):
+        indecies.append(count + 1)
+
+
+    # Sort and return json to front end
+    # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
+    # This helped me sort 2 lists the same way
+    percentages_sorted, usernames_sorted, indecies_sorted = map(list, zip(*sorted(zip(percentages, usernames, indecies), reverse=True)))
+
+    for count in range(0, len(indecies)):
+        indecies_sorted[count] = count + 1
+
+    sortedreturn = zip(percentages_sorted, usernames_sorted, indecies_sorted)
+
+    return sortedreturn
+
+    '''
     # Calculate ((current prices / total invested) - 1) * 100 for each user
     for j in range(0, len(users)):
         percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
@@ -234,7 +257,7 @@ def leaderboard():
     print(sortedreturn[0][0])
 
     return sortedreturn
-
+'''
 
 # route decorators
 # these determine the location of different endpoints
