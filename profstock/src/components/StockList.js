@@ -10,20 +10,72 @@ import './SubLinks.js';
 
 
 export default class SubInfo extends React.Component {
-    
+   // let leaderboard = fetch('http://localhost:5000/leaderboard') 
     state = {
         persons: []
     }
+    
+    /*
     componentDidMount() {
         axios.get(`https://jsonplaceholder.typicode.com/users`)
           .then(res => {
             const persons = res.data;
             this.setState({ persons });
-          })
-      }
+        })
+    }
+    */
+    
+    componentDidMount() {
+        axios.get(`http://localhost:5000/leaderboard`)
+          .then(res => {
+            const persons = res.data;
+            this.setState({ persons });
+        })
+    }
 
     
     render() {
+        return (
+            <h3>
+              <div id="homeContainer">
+                <div id="Top10StockTable">
+                  {Top10Stock()}
+                </div>
+                
+    
+                <div id="TopUsersTable">
+                <table className = "home2" align="center">
+                    <thead>
+                    <tr>
+                        <th colSpan = '3'>Top users</th>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Name</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                    this.state.persons
+                        .map(person =>
+                            <tr key={person.portfolioid}>
+                            <td key={1}>{person.portfolioid}</td>
+                            <td key={2}>{person.stockid}</td>
+                            <td key={3}>{person.quantity}</td>
+                          </tr>
+                        )
+                    }
+                    </tbody>
+                </table>
+                </div>
+    
+    
+                <div id="clear"></div>
+            </div>
+            </h3>);
+    
+        /*
       return (
         <h3>
           <div id="homeContainer">
@@ -63,6 +115,7 @@ export default class SubInfo extends React.Component {
             <div id="clear"></div>
         </div>
         </h3>);
+    */
     }  
 }
 function Top10Stock() {

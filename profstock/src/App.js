@@ -6,14 +6,21 @@ import SubInfo from './components/StockList.js';
 import SubLinks from './components/SubLinks.js';
 
 function App() {
-  let users = fetch('http://localhost:5000/users');
-  ///*
-  return window.print(users);
+  /*
+  let leaderboard = fetch('http://localhost:5000/leaderboard') 
+ 
+  return (
+    <p>users are {leaderboard.uid}</p>
+   
+    //window.print(leaderboard.username)
+  );
+    console.log("users are " + leaderboard.uid)
     //console.log("users are " + users.uid)
+
   
   //*/
  
-  /*
+  ///*
   return (
     <div ClassName="StockHome">
       
@@ -30,7 +37,7 @@ function App() {
     </div>
     
   )
-  /*/
+  //*/
 }
 
 export default App;
