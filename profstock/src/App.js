@@ -1,9 +1,7 @@
 import './App.css';
-//import '../../static/style.css';
-//<PersonList/>
-import PersonList from './components/PersonList.js';
-import SubInfo from './components/StockList.js';
-import SubLinks from './components/SubLinks.js';
+
+import SubLinks from './components/SubLinks';
+import StockList from './components/StockList';
 
 function App() {
   /*
@@ -22,18 +20,9 @@ function App() {
  
   ///*
   return (
-    <div ClassName="StockHome">
-      
-      <header>
-      <h1>ProfStock</h1>
-      </header>
-      
+    <div ClassName="App">
       <SubLinks/>
-      <SubInfo/>
-      
-      <footer>
-      <p></p>
-      </footer>
+      <StockList/>
     </div>
     
   )
