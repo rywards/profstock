@@ -767,6 +767,11 @@ def snapshot():
     else:
         return redirect("/login")
 
+# Displays the 500.html error page, to actually handle errors
+@app.errorhandler(500)
+def page_not_found(e):
+    return(render_template("500.html"))
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
 
