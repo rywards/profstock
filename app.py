@@ -1,6 +1,7 @@
 from importlib.metadata import metadata
 import json, requests
 from textwrap import indent
+import time
 
 from flask import Flask, render_template, request, jsonify, redirect, session, url_for, send_file
 from os import environ as env
@@ -242,6 +243,7 @@ def leaderboard():
         for t in getTickers:
             if t.portfolioid == users[i]:
                 api_reponse = stockAPI(t.ticker)
+                time.sleep(0.5)
 
                 print(api_reponse)
                 init_value = 0
@@ -722,6 +724,7 @@ def snapshot():
             for t in getTickers:
                 if t.portfolioid == users[i]:
                     api_reponse = stockAPI(t.ticker)
+                    time.sleep(0.25)
 
                     init_value = 0
                     init_value = t.quantity * api_reponse.get('open')
