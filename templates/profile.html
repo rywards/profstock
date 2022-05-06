@@ -1,4 +1,4 @@
-<!--NO LONGER IN USE-->
+<!--Maia Malone -->
 
 <!DOCTYPE html>
 <html>
@@ -16,7 +16,7 @@
     <body>
       <div id="navbar">
         <h2>
-          <ul>
+          <ul> <!--This creates the navbar area that is the formatt for the whole website -->
             <li><a className="active" href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
             <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
@@ -29,7 +29,7 @@
                 <input type="text" name="ticker" placeholder="Enter ticker"/>
                 <input type="submit" value="Search"/>
               </form>
-            </li>
+            </li> <!--Checks if a user is logged in and adjusts the navbar accordingly -->
             {% if session %}
             <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
             {% else %}
@@ -39,7 +39,8 @@
         </h2>
       </div>
         <div id="info"></div>
-        <script type="text/babel">
+        <script type="text/babel">  
+                //displays the information of a logged in user
             class ProfileInfo extends React.Component {
                 render(){
                     return(
