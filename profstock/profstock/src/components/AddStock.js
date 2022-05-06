@@ -28,7 +28,7 @@ export default class AddStock extends React.Component {
         console.log(res.data);
       })
     }
-
+    /*This is used to post search requests into the db and helps another component display the information */
     render() {
         return(
             <div>
