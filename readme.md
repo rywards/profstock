@@ -4,7 +4,7 @@
 Web app to track your stock portfolio and compare it's performance against other users.
 
 ## Libraries and Frameworks
-- React ⚛️
+- Jinja ♓️
 - Flask 🧪
 - Auth0 🔒
 - SQLAlchemy ⚗️
