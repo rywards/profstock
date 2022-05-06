@@ -1,6 +1,7 @@
 from importlib.metadata import metadata
 import json, requests
 from textwrap import indent
+import time
 
 from flask import Flask, render_template, request, jsonify, redirect, session, url_for, send_file
 from os import environ as env
@@ -14,11 +15,16 @@ from sqlalchemy import MetaData, create_engine, insert,Table, Column, Integer, S
 from sqlalchemy.orm import Session as Alcsession
 from sqlalchemy.sql import func
 
-# initializing database connection
+# initializing database connection   //yo test on ben branch
 engine = create_engine('mysql+mysqldb://root:Warlord2000%4029!@localhost/profstock', echo=True, future=True)
+
+# initializing database connection and sqlalchemy session
+# engine = create_engine("mysql+mysqldb://root:root@localhost/profstock", echo=True, future=True)
 alcsession = Alcsession(engine)
 metadata_obj = MetaData()
 
+# Loading env file for Auth0 and 
+# initializing flask app
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
@@ -37,7 +43,7 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
-# Function returns current user's information in JSON format.
+# Function returns current user's session information in JSON format.
 def session_info():
     sessioninfo = session.get('user')
     pretty=json.dumps(sessioninfo, indent=4)
@@ -46,6 +52,10 @@ def session_info():
 
 # Function to get the initial purchase amount of a stock
 # based on the buydate.
+# Takes in a ticker, amount, and the buydate of the stock
+# -----------------------------------------------------------
+# NOTE: 5 year history limit. Buydate cannot be more than 5 years 
+# from the current day.
 def stock_init_val(ticker, amount, buydate):
 
     print(ticker)
@@ -65,6 +75,9 @@ def stock_init_val(ticker, amount, buydate):
     return buydate_value
 
 # Function to get the current value of a portfolio holding
+# Takes in a ticker and amount to calculate the current 
+# value.
+# Returns the current value of the stock
 def stock_curr_val(ticker, amount):
     # getting the most recent stock data
     print(ticker)
@@ -80,7 +93,10 @@ def stock_curr_val(ticker, amount):
 
     return curr_val
 
-# function for calling api
+
+# Function calls marketstack API for ticker information
+# Takes in ticker and returns stock info in JSON format
+# API link: https://marketstack.com
 def stockAPI(ticker):
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
@@ -130,12 +146,18 @@ def users():
 
         return jsonify(username)
 
+
+# Login endpoint
+# Returns to the callback endpoint
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True)
     )
 
+# Callback endpoint
+# Creates token for session
+# Redirects to home
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
@@ -143,6 +165,8 @@ def callback():
     users()
     return redirect("/")
 
+# Logout endpoint
+# Clears the sessions and redirects to home
 @app.route("/logout")
 def logout():
     session.clear()
@@ -222,6 +246,7 @@ def leaderboard():
         for t in getTickers:
             if t.portfolioid == users[i]:
                 api_reponse = stockAPI(t.ticker)
+                time.sleep(0.5)
 
                 print(api_reponse)
                 init_value = 0
@@ -281,13 +306,18 @@ def leaderboard():
     return sortedreturn
 '''
 
-# route decorators
-# these determine the location of different endpoints
+# Home endpoint
+# Returns user to the home page and returns leaderboard with it.
 @app.route("/")
 def home():
     leaderboardlist = leaderboard()
     return render_template("index.html", leaderboardlist=leaderboardlist)
 
+# Profile endpoint
+# Returns user session info on GET request
+# ---------------------------------------------
+# Changes applicable data on POST request and 
+# redirects to the GET request.
 @app.route("/profile", methods=['GET','POST'])
 def profile():
     users = Table('users', metadata_obj, autoload_with=engine)
@@ -323,8 +353,7 @@ def profile():
         return redirect("/login")
 
 # Ryan Edwards
-# this is where the ticker post request data goes
-# we can do some calculations here as necessary
+# Returns stock information based on ticker in search form.
 @app.route("/stockinfo", methods=['POST'])
 def pullstockinfo():
     ticker = request.form['ticker']
@@ -333,6 +362,8 @@ def pullstockinfo():
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
 
 
+    # This query populates the stocks table if the ticker does not exist in it.
+    # It stores the ticker and name of the stock.
     if not result:
 
         params = {
@@ -348,7 +379,7 @@ def pullstockinfo():
         alcsession.execute(newstock)
         alcsession.commit()
 
-    # getting the most recent stock data
+    # This call to the API gets the latest EOD data of the ticker
     params = {
     'access_key': 'b690ef1a94c38681861a3a78272a9c98'
     }
@@ -379,6 +410,12 @@ def pullstockinfo():
                                              dividend=dividend,
                                              ticker=ticker)
 
+
+# Portfolio endpoint
+# Handles interactions with a user's portfolio
+# Determines whether the request is a POST or GET request
+# and makes changes based on form data.
+# Allows naming of portfolios.
 @app.route("/portfolio", methods=['POST','GET'])
 def portfolio():
 
@@ -387,7 +424,7 @@ def portfolio():
     portfolios = Table('portfolios', metadata_obj, autoload_with=engine)
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
 
-    # check to make sure a session is active
+    # Checks if a session is active
     if (session):
 
         userinfo = session_info()
@@ -418,10 +455,12 @@ def portfolio():
           stockidexist = alcsession.query(stocks).filter_by(stockid = ticker).first()
           tickerexist = alcsession.query(stocks).filter_by(ticker = ticker).first()
 
+          # If form response value matches, change portfolio values
           if (status == "Change Portfolio"):
               activeportfolio = ticker
               getname = alcsession.query(portfolios).filter_by(portfolioid=uid,
                                                                 name=ticker).all()
+
               data = []
               curr_val = 0
               for row in getname:
@@ -438,12 +477,13 @@ def portfolio():
                   curr_val += stock_curr_val(result[1], row.quantity)
 
                   data.append(stockdata)
-              #return render_template("portfolio.html")
+
               return render_template("portfolio.html", data=data,
                                                         curr_val=curr_val,
                                                         portfolionames=portfolionames,
                                                         activeportfolio=activeportfolio)
 
+          # If response value matches, remove stock from portfolio and redirect to portfolio page.
           if (status == "Remove Portfolio"):
               try:
                   portfremove = alcsession.query(portfolios).filter_by(portfolioid=uid, stockid=tickerexist[0]).delete()
@@ -456,9 +496,12 @@ def portfolio():
 
 
 
+          # If response value matches, add the stock to the specific portfolio
+          # NOTE: Buydate cannot be further than 5 years from the current day
+          # due to API tier limits.
           if (status == "Add Portfolio"):
 
-            # buydate must be strictly in Y-m-d format.
+            # buydate must be strictly in yyy-mm-dd format.
             # ex. 2015-12-25 (christmas 2015)
 
             # Need to make sure input is correct or will get a bad request
@@ -477,6 +520,7 @@ def portfolio():
             alcsession.commit()
             return redirect("/portfolio")
 
+        # Returns active portfolio from session data
         if (request.method == 'GET'):
           data = []
           curr_val = 0
@@ -493,7 +537,7 @@ def portfolio():
               print(curr_val)
 
               data.append(stockdata)
-          #return render_template("portfolio.html")
+          
           return render_template("portfolio.html", data=data,
                                                     curr_val=curr_val,
                                                     activeportfolio=activeportfolio,
@@ -502,7 +546,8 @@ def portfolio():
         return redirect("/login")
 
 
-# Handles call to watchlist endpoint
+# Watchlist endpoint
+# Handles adding/removing to watchlists and having multiple named ones.
 @app.route("/watchlist", methods=['GET','POST'])
 def watchlist():
 
@@ -681,6 +726,7 @@ def snapshot():
             for t in getTickers:
                 if t.portfolioid == users[i]:
                     api_reponse = stockAPI(t.ticker)
+                    time.sleep(0.25)
 
                     init_value = 0
                     init_value = t.quantity * api_reponse.get('open')
@@ -765,6 +811,11 @@ def snapshot():
 
     else:
         return redirect("/login")
+
+# Displays the 500.html error page, to actually handle errors
+@app.errorhandler(500)
+def page_not_found(e):
+    return(render_template("500.html"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env.get("PORT", 3000))
