@@ -19,7 +19,7 @@ export default class PersonList extends React.Component {
         this.setState({ persons });
       })
   }
-
+    /*Gets the users data to be displayed within the page */
   render() {
     return (
         this.state.persons
