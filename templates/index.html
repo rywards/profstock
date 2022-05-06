@@ -6,6 +6,10 @@
 -->
 <html lang="en">
 <head>
+  
+  <!--
+  required file sources for react code to function properly
+  -->
   <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -20,11 +24,18 @@
 <header>
   <h1>ProfStock</h1>
 </header>
-<div id="root"></div>
+
+<!--
+  subLinks div calls Sublinks react class, which generates the Navigation bar section
+  subInfo div called the two tables below which are 'Top 10 Stocks' and 'Top Performing Portfolios'
+-->
+<div id="subLinks"></div>
 <div id="subInfo"></div>
 
 <script type="text/babel">
-
+  /*
+    React design of class Sublinks: creates the Navigation bar section
+  */
   class SubLinks extends React.Component {
     render() {
       return (
@@ -48,7 +59,10 @@
         </h2>);
     }
   }
-
+  
+  /*
+    Function that creates The Top 10 Stock data, to keep it safe, its hard coded based on 10 stocks research 
+  */
   function Top10Stock() {
     const items = [
     {
@@ -156,17 +170,17 @@
       </table>
     );
   }
-
+  
+  /*
+    Function that creates The Top Users data for Portfolios,this is taken out of the MYSQL database
+  */
   function TopUsers() {
-    
     let leaderboard = fetch('http://localhost:5000/leaderboard') 
     return (
-      
-    
       <table className = "home2" align="center">
         <thead>
           <tr>
-            <th colSpan = '3'>Top users</th>
+            <th colSpan = '3'>Top Performing Portfolios</th>
           </tr>
           <tr>
             <th>Return %</th>
@@ -186,18 +200,10 @@
       </table>
     );
   }
-  //<td>{itemRows}</td>
 
   /*
-<tr>
-            <td>{leaderboard.users}</td>    
-            <td>{leaderboard.usernames}</td>
-            <td>{leaderboard.invested}</td>
-          </tr>
-
+    React design of class SubInfo: creates the 'Top 10 Stocks' and 'Top Performing Portfolios'
   */
-
-
   class SubInfo extends React.Component {
     render() {
       return (
@@ -215,7 +221,10 @@
     }
   }
 
-  ReactDOM.render(<SubLinks />, document.getElementById('root'))
+  /*
+    Renders React code of SubLinks and SubInfo to show properly
+  */
+  ReactDOM.render(<SubLinks />, document.getElementById('subLinks'))
   ReactDOM.render(<SubInfo />, document.getElementById('subInfo'))
 </script>
 
