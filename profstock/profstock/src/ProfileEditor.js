@@ -6,6 +6,7 @@ function App() {
     return (
         <div>
             <header>  
+            /*Used to compile components and display profile info */
             <title> Profile Page </title> 
             </header>  
             <h1 class= "pfph1"></h1>
