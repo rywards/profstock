@@ -13,7 +13,7 @@ export default class StockSearch extends React.Component {
 
     handleSubmit = event => {
         event.preventDefault();
-
+        //grabs the stock name to be used in finding the form info
         const stock = {
             ticker: this.state.name
         };
