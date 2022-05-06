@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-    Ryan Edwards
+    Maia Malone
 -->
 <html>
 <head>
@@ -14,10 +14,12 @@
 
       <h1>
         <ul>
-            <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
+
+          <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
           <li><a href="portfolio">Portfolio</a></li>
           <li><a href="watchlist">Watchlist</a></li>
           <li style="float:right">
+
             <!-- send post request with stock ticker-->
             <form action="/stockinfo" method="post">
             <input type="text" name="ticker" placeholder="Enter ticker">
@@ -33,7 +35,7 @@
       </h1>
 
     <!--
-        items in double braces are coming from the POST requests in stocksearch.html;
+        items in double braces are coming from the API call in the stockinfo endpoint;
         variables must match what's in the stockinfo app route
     -->
     <div class="tickerinfo">
@@ -123,6 +125,7 @@
       </table>
     </div>
   {% else %}
+  <!-- Meant to be blank here if the end user is not logged in -->
   {% endif %}
 
     <br></br>

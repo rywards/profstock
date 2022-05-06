@@ -40,19 +40,23 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
 
-# Function returns current user's session information in JSON format.
+''' 
+Function returns current user's session information in JSON format. 
+'''
 def session_info():
     sessioninfo = session.get('user')
     pretty=json.dumps(sessioninfo, indent=4)
     userinfo = json.loads(pretty)
     return userinfo
 
-# Function to get the initial purchase amount of a stock
-# based on the buydate.
-# Takes in a ticker, amount, and the buydate of the stock
-# -----------------------------------------------------------
-# NOTE: 5 year history limit. Buydate cannot be more than 5 years 
-# from the current day.
+''' 
+Function to get the initial purchase amount of a stock
+based on the buydate.
+Takes in a ticker, amount, and the buydate of the stock
+-----------------------------------------------------------
+NOTE: 5 year history limit. Buydate cannot be more than 5 years 
+from the current day. 
+'''
 def stock_init_val(ticker, amount, buydate):
 
     print(ticker)
@@ -71,10 +75,12 @@ def stock_init_val(ticker, amount, buydate):
 
     return buydate_value
 
-# Function to get the current value of a portfolio holding
-# Takes in a ticker and amount to calculate the current 
-# value.
-# Returns the current value of the stock
+'''
+Function to get the current value of a portfolio holding
+Takes in a ticker and amount to calculate the current 
+value.
+Returns the current value of the stock 
+'''
 def stock_curr_val(ticker, amount):
     # getting the most recent stock data
     print(ticker)
@@ -91,9 +97,11 @@ def stock_curr_val(ticker, amount):
     return curr_val
 
 
-# Function calls marketstack API for ticker information
-# Takes in ticker and returns stock info in JSON format
-# API link: https://marketstack.com
+'''
+Function calls marketstack API for ticker information
+Takes in ticker and returns stock info in JSON format
+API link: https://marketstack.com
+'''
 def stockAPI(ticker):
     stocks = Table('stocks', metadata_obj, autoload_with=engine)
     result = alcsession.query(stocks).filter_by(ticker = ticker).first()
@@ -122,7 +130,9 @@ def stockAPI(ticker):
 
     return api_response
 
-# Gets list of all registered users
+'''
+Adds a user to the database if they are logged in
+'''
 @app.route("/users", methods=['GET'])
 def users():
     users = Table('users', metadata_obj, autoload_with=engine)
@@ -142,19 +152,25 @@ def users():
         alcsession.commit()
 
         return jsonify(username)
+    else:
+        return redirect("/")
 
 
-# Login endpoint
-# Returns to the callback endpoint
+'''
+Login endpoint
+Returns to the callback endpoint
+'''
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True)
     )
 
-# Callback endpoint
-# Creates token for session
-# Redirects to home
+'''
+Callback endpoint
+Creates token for session
+Redirects to home
+'''
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
@@ -162,8 +178,10 @@ def callback():
     users()
     return redirect("/")
 
-# Logout endpoint
-# Clears the sessions and redirects to home
+'''
+Logout endpoint
+Clears the sessions and redirects to home
+'''
 @app.route("/logout")
 def logout():
     session.clear()
@@ -179,17 +197,20 @@ def logout():
         )
     )
 
-# Andrew S. and Ryan Edwards
-# When this endpoint is hit, a zipped return of 3 lists is returned
-# The 3 lists contain the usernames, portfolio return percentage, and leaderboard position
-# of all of the users in the database
-# The usernames are found in the first sqlalchemy query, and stored in the users list
-# The return percentages are then found by taking the total_invested field from the first sqlalchemy
-# query, and comparing it to the current_amounts. The result of this is stored in the percentages list.
-# The indecies are found by generating a list of indecies for how many people are in the list, and 
-# then simply sorting the list later.
-# Once the users, percentages, and indecies lists are filled with the data, all 3 are sorted in the same way.
-# The 3 sorted lists are then zipped, so all 3 can be returned to be displayed on the home page.
+'''
+Andrew S. and Ryan Edwards
+
+When this endpoint is hit, a zipped return of 3 lists is returned
+The 3 lists contain the usernames, portfolio return percentage, and leaderboard position
+of all of the users in the database
+The usernames are found in the first sqlalchemy query, and stored in the users list
+The return percentages are then found by taking the total_invested field from the first sqlalchemy
+query, and comparing it to the current_amounts. The result of this is stored in the percentages list.
+The indecies are found by generating a list of indecies for how many people are in the list, and 
+then simply sorting the list later.
+Once the users, percentages, and indecies lists are filled with the data, all 3 are sorted in the same way.
+The 3 sorted lists are then zipped, so all 3 can be returned to be displayed on the home page.
+'''
 @app.route("/leaderboard", methods=['GET'])
 def leaderboard():
 
@@ -281,41 +302,24 @@ def leaderboard():
     # Returns the 3 lists
     return sortedreturn
 
-    '''
-    # Calculate ((current prices / total invested) - 1) * 100 for each user
-    for j in range(0, len(users)):
-        percentages.append((( float(current_amounts[j]) / float(invested[j]))) * 100)
 
-    for count in range(0, len(users)):
-        indecies.append(count + 1)
 
-    # Sort and return json to front end
-    # https://stackoverflow.com/questions/19931975/sort-multiple-lists-simultaneously
-    # This helped me sort 2 lists the same way
-
-    zippedreturn = zip(percentages, usernames, indecies)
-    sortedreturn = sorted(zippedreturn, reverse=True)
-
-    # Returns json, in order, from largest percentage to smallest
-    # Returns a list of elements, each element has 2 values, a percentage + or -, and the username
-    #return jsonify(sortedreturn)
-    print(sortedreturn[0][0])
-
-    return sortedreturn
 '''
-
-# Home endpoint
-# Returns user to the home page and returns leaderboard with it.
+Home endpoint
+Returns user to the home page and returns leaderboard with it.
+'''
 @app.route("/")
 def home():
     leaderboardlist = leaderboard()
     return render_template("index.html", leaderboardlist=leaderboardlist)
 
-# Profile endpoint
-# Returns user session info on GET request
-# ---------------------------------------------
-# Changes applicable data on POST request and 
-# redirects to the GET request.
+'''
+Profile endpoint
+Returns user session info on GET request
+---------------------------------------------
+Changes applicable data on POST request and 
+redirects to the GET request.
+'''
 @app.route("/profile", methods=['GET','POST'])
 def profile():
     users = Table('users', metadata_obj, autoload_with=engine)
@@ -653,10 +657,12 @@ def watchlist():
         return redirect("/login")
 
 
-# Andrew, Ryan
-# When this endpoint is hit, an html file is returned that contains a mini snapshot of the current
-# user's profile. It contains the profile's image, the user's total portfolio return percentage up/down,
-# the user's best performing stock, and what percentage that stock is up/down.
+'''
+Andrew, Ryan
+When this endpoint is hit, an html file is returned that contains a mini snapshot of the current
+user's profile. It contains the profile's image, the user's total portfolio return percentage up/down,
+the user's best performing stock, and what percentage that stock is up/down.
+'''
 @app.route("/snapshot", methods=['POST', 'GET'])
 def snapshot():
     # These are the 3 tables the sqlalchemy queries will need to use
@@ -784,7 +790,7 @@ def snapshot():
                 percentage = differences[i]
 
 
-        # Returns the file
+        # Returns the downloadable HTML file
         print("creating file")
         file = open("stats.html", "w")
         data = f"""<html>
@@ -810,7 +816,9 @@ def snapshot():
     else:
         return redirect("/login")
 
-# Displays the 500.html error page, to actually handle errors
+'''
+Displays the 500.html error page, to actually handle errors
+'''
 @app.errorhandler(500)
 def page_not_found(e):
     return(render_template("500.html"))

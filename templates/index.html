@@ -17,6 +17,9 @@
 <header>
   <h1>ProfStock</h1>
 </header>
+<!-- Navbar div. Jinja template is used to include Python and put relevant elements up
+     URLs built based on the endpoint location
+-->
       <div id="navbar">
         <h2>
           <ul>
@@ -33,6 +36,8 @@
                 <input type="submit" value="Search"/>
               </form>
             </li>
+
+            <!-- Detects if a session is active to display a login or logout button -->
             {% if session %}
             <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
             {% else %}
@@ -41,6 +46,11 @@
           </ul>
         </h2>
       </div>
+
+      <!-- 
+        Leaderboard. Builds the leaderboard template off of what is pulled from the endpoint
+        Utilizes Jinja to use Python
+      -->
         <div class="tickerinfo">
               <table class = "topusers">
                 <thead>

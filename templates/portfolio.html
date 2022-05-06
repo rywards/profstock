@@ -10,6 +10,11 @@
     </header>
         <h1>
             <ul>
+              <!-- 
+                  Navbar. 
+                  Jinja template is used to include Python and put relevant elements.
+                  URLs built based on the endpoint location
+              -->
                 <li><a class="active" href="{{ url_for('home') }}">Home</a></li>
               <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
               <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
@@ -33,7 +38,10 @@
           </h1>
 
             <div class="tickerinfo">
-              <!-- Form to change active portfolio -->
+              <!-- 
+                    Form to change active portfolio 
+                    Sends a post request to the server to make changes
+              -->
               <form action='/portfolio' method="post">
               <label for="Change Portfolio">Portfolios: </label>
                 <select id="portfolios" name="ticker">
@@ -59,6 +67,8 @@
                     </thead>
 
                 </table>
+
+              <!-- Table creation for portfolio items utilizing Jinja -->
               <table align="left">
                   <thead>
                     <tr>
