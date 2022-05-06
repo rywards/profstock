@@ -1,7 +1,7 @@
 
 # ProfStock
 
-Web app to track your stock portfolio and compare it's performance against other users.
+Site to track your stock portfolio and compare it's performance against other users.
 
 ## Libraries and Frameworks
 - Jinja ♓️
