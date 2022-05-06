@@ -10,6 +10,7 @@ function App() {
             <header>
                 <h1>ProfStock</h1>
             </header>
+            /*Displays the stock info as well as portfolio and watchlist adding */
             <SubLinks/>
             <StockSearch/>
             <AddStock/>
